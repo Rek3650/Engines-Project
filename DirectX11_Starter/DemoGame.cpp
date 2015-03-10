@@ -339,10 +339,10 @@ void DemoGame::DrawScene()
 	//triangle->Draw(deviceContext, pixelShader, vertexShader);
 	
 	// draw the square
-	square->Draw(deviceContext, pixelShader, vertexShader);
+	//square->Draw(deviceContext, pixelShader, vertexShader);
 
 	// draw the pentagon
-	pentagon->Draw(deviceContext, pixelShader, vertexShader);
+	//pentagon->Draw(deviceContext, pixelShader, vertexShader);
 	
 	DrawDebugLines();
 
