@@ -6,6 +6,11 @@
 #include "Mesh.h"
 #include "GameEntity.h"
 #include "Material.h"
+#include "PrimitiveBatch.h"
+#include "VertexTypes.h"
+#include "Effects.h"
+#include "Spline.h"
+#include <vector>
 
 // Include run-time memory checking in debug builds
 #if defined(DEBUG) || defined(_DEBUG)
@@ -33,6 +38,9 @@ public:
 	void OnMouseDown(WPARAM btnState, int x, int y);
 	void OnMouseUp(WPARAM btnState, int x, int y);
 	void OnMouseMove(WPARAM btnState, int x, int y);
+
+	// for holding all of the debug line draws
+	void DrawDebugLines();
 
 private:
 	// Initialization for our "game" demo
@@ -75,4 +83,15 @@ private:
 	// texture stuff
 	const wchar_t* epicTriforce;
 	Material* triMat;
+
+	// for debug lines
+	BasicEffect* basicEffect;
+	PrimitiveBatch<VertexPositionColor>* primitiveBatch;
+
+	// for creating a spline
+	std::vector<XMFLOAT3> ctrlPts;
+	std::vector<XMFLOAT3> splinePts;
+	Spline spline;
+	float splineIndex;
+	int dir;
 };

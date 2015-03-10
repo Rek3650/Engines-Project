@@ -76,6 +76,8 @@ DemoGame::~DemoGame()
 	delete square;
 	delete pentagon;
 	delete triMat;
+	delete primitiveBatch;
+	delete basicEffect;
 }
 
 #pragma endregion
@@ -122,6 +124,30 @@ bool DemoGame::Init()
 	triangleYdir = 1;
 	pentagonScaleDir = 1;
 
+	// for drawing lines
+	primitiveBatch = new PrimitiveBatch<VertexPositionColor>(deviceContext);
+	basicEffect = new BasicEffect(device);
+
+	// initialize the stuff for the spline
+	splineIndex = 0;
+	dir = 1;
+	ctrlPts.clear();
+	splinePts.clear();
+	// set some default values for the ctrlPts
+	/*ctrlPts.push_back(XMFLOAT3(-0.9f, -0.9f, 0));
+	ctrlPts.push_back(XMFLOAT3(-0.9f, 0.9f, 0));
+	ctrlPts.push_back(XMFLOAT3(0.9f, 0.9f, 0));
+	ctrlPts.push_back(XMFLOAT3(0.9f, -0.9f, 0));
+	ctrlPts.push_back(XMFLOAT3(-0.9f, -0.9f, 0));
+	ctrlPts.push_back(XMFLOAT3(-0.9f, 0.9f, 0));
+	ctrlPts.push_back(XMFLOAT3(0.9f, 0.9f, 0));*/
+	ctrlPts.push_back(XMFLOAT3(-1.5f, -1, 0));
+	ctrlPts.push_back(XMFLOAT3(-1, 0, 0));
+	ctrlPts.push_back(XMFLOAT3(-0.5f, 1, 0));
+	ctrlPts.push_back(XMFLOAT3(0.5f, -1, 0));
+	ctrlPts.push_back(XMFLOAT3(1, 0, 0));
+	ctrlPts.push_back(XMFLOAT3(1.5f, 1, 0));
+
 	return true;
 }
 
@@ -166,11 +192,11 @@ void DemoGame::CreateGeometryBuffers()
 	// make a pentagon
 	Vertex pentagonVerts[] =
 	{
-		{ XMFLOAT3(+0.0f, +1.0f, +0.0f), red, XMFLOAT2(0.5, 0) },
-		{ XMFLOAT3(+1.0f, +0.1f, +0.0f), blue, XMFLOAT2(0, 0.1) },
-		{ XMFLOAT3(+0.5f, -1.0f, +0.0f), green, XMFLOAT2(0.25, 1) },
-		{ XMFLOAT3(-0.5f, -1.0f, +0.0f), yellow, XMFLOAT2(0.75, 1) },
-		{ XMFLOAT3(-1.0f, +0.1f, +0.0f), white, XMFLOAT2(1, 0.1) },
+		{ XMFLOAT3(+0.0f, +1.0f, +0.0f), red, XMFLOAT2(0.5f, 0.0f) },
+		{ XMFLOAT3(+1.0f, +0.1f, +0.0f), blue, XMFLOAT2(0.0f, 0.1f) },
+		{ XMFLOAT3(+0.5f, -1.0f, +0.0f), green, XMFLOAT2(0.25f, 1.0f) },
+		{ XMFLOAT3(-0.5f, -1.0f, +0.0f), yellow, XMFLOAT2(0.75f, 1.0f) },
+		{ XMFLOAT3(-1.0f, +0.1f, +0.0f), white, XMFLOAT2(1.0f, 0.1f) },
 	};
 	UINT pentagonInds[] = 
 	{ 
@@ -256,17 +282,15 @@ void DemoGame::OnResize()
 #pragma endregion
 
 #pragma region Game Loop
-
-// Updates the local constant buffer and 
-// push it to the buffer on the device
 void DemoGame::UpdateScene(float dt)
 {
+	/*
 	// make the triangle move around and stay on screen
 	if(triangle->translation.x > 2 || triangle->translation.x < -2) triangleXdir *= -1;
 	if(triangle->translation.y > 2 || triangle->translation.y < -2) triangleYdir *= -1;
 	triangle->translation = XMFLOAT3(triangle->translation.x+((dt/2)*triangleXdir), triangle->translation.y+(dt*triangleYdir), triangle->translation.z);
 	triangle->Update(deviceContext);
-
+	
 	// make the square rotate
 	square->rotation += dt;
 	square->Update(deviceContext);
@@ -275,6 +299,23 @@ void DemoGame::UpdateScene(float dt)
 	if(pentagon->scale.x > 2 || pentagon->scale.x < 0.15) pentagonScaleDir *= -1;
 	pentagon->scale = XMFLOAT3(pentagon->scale.x+(dt*pentagonScaleDir), pentagon->scale.y+(dt*pentagonScaleDir), pentagon->scale.z+(dt*pentagonScaleDir));
 	pentagon->Update(deviceContext);
+	*/
+	if(splineIndex > 1)
+	{
+		splineIndex = 1;
+		dir *= -1;
+	}
+	else if(splineIndex < 0)
+	{
+		splineIndex = 0;
+		dir *= -1;
+	}
+	splineIndex += dt/2 * dir;
+	square->translation = spline.getPointOnSpline(ctrlPts, splineIndex);
+	square->Update(deviceContext);
+
+	splinePts.clear();
+	splinePts = spline.makeSpline(ctrlPts, 100);
 }
 
 // Clear the screen, redraw everything, present
@@ -295,18 +336,50 @@ void DemoGame::DrawScene()
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// draw the triangle
-	triangle->Draw(deviceContext, pixelShader, vertexShader);
+	//triangle->Draw(deviceContext, pixelShader, vertexShader);
 	
 	// draw the square
 	square->Draw(deviceContext, pixelShader, vertexShader);
 
 	// draw the pentagon
 	pentagon->Draw(deviceContext, pixelShader, vertexShader);
+	
+	DrawDebugLines();
 
 	// Present the buffer
 	HR(swapChain->Present(0, 0));
 }
 
+#pragma endregion
+
+#pragma region Draw Debug Lines
+// i put the line drawing in this function to try and keep the code in DrawScene cleaner
+// this seems to cause errors though so only use for testing
+void DemoGame::DrawDebugLines()
+{
+	basicEffect->Apply(deviceContext);
+	
+	primitiveBatch->Begin();
+	////////////////////////////////////
+
+	primitiveBatch->DrawLine(VertexPositionColor(square->translation, XMFLOAT4()), 
+			VertexPositionColor(XMFLOAT3(0, 0, 0), XMFLOAT4()));
+
+	for(unsigned int i = 1; i < ctrlPts.size(); i++)
+	{
+		primitiveBatch->DrawLine(VertexPositionColor(ctrlPts[i-1], XMFLOAT4()), 
+			VertexPositionColor(ctrlPts[i], XMFLOAT4()));
+	}
+
+	for(unsigned int i = 1; i < splinePts.size(); i++)
+	{
+		primitiveBatch->DrawLine(VertexPositionColor(splinePts[i-1], XMFLOAT4()), 
+			VertexPositionColor(splinePts[i], XMFLOAT4()));
+	}
+
+	////////////////////////////////////
+	primitiveBatch->End();
+}
 #pragma endregion
 
 #pragma region Mouse Input
