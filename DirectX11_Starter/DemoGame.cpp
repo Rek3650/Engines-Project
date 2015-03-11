@@ -154,7 +154,7 @@ bool DemoGame::Init()
 	ctrlPts.push_back(XMFLOAT3(1.5f, 1, 0));
 
 	fromQuat = new XMVECTOR(cube->rotation);
-	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(0, 0, 1.57079633));
+	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(0, 0, 2000));
 	 
 
 	return true;
@@ -204,8 +204,8 @@ void DemoGame::CreateGeometryBuffers()
 		{ XMFLOAT3(0.5, 0.5, 0.5), blue, XMFLOAT2(1, 0) },
 		{ XMFLOAT3(0.5, -0.5, 0.5), blue, XMFLOAT2(1, 1) },
 		{ XMFLOAT3(-0.5, -0.5, 0.5), blue, XMFLOAT2(0, 1) },
-		{ XMFLOAT3(-0.5, 0.5, -0.5), blue, XMFLOAT2(1, 0) },
-		{ XMFLOAT3(0.5, 0.5, -0.5), blue, XMFLOAT2(0, 0) },
+		{ XMFLOAT3(-0.5, 0.5, -0.5), blue, XMFLOAT2(0, 0) },
+		{ XMFLOAT3(0.5, 0.5, -0.5), blue, XMFLOAT2(1, 0) },
 		{ XMFLOAT3(0.5, -0.5, -0.5), blue, XMFLOAT2(1, 1) },
 		{ XMFLOAT3(-0.5, -0.5, -0.5), blue, XMFLOAT2(0, 1) }
 	};
@@ -354,7 +354,10 @@ void DemoGame::UpdateScene(float dt)
 	square->Update(deviceContext);
 
 	cube->Update(deviceContext);
-	cube-> rotation = Slerp(fromQuat, toQuat, splineIndex, &cube->rotation);
+	cube-> rotation = Slerp(fromQuat, toQuat, 1000, &cube->rotation);
+	XMFLOAT4* temp = new XMFLOAT4();
+	XMStoreFloat4(temp, cube->rotation);
+	//std::cout << "W: " << temp->w << " X: " << temp->x << " Y: " << temp->y << " Z: " << temp->z << "\n";
 
 	splinePts.clear();
 	splinePts = spline.makeSpline(ctrlPts, 100);
@@ -416,6 +419,7 @@ XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMV
 	resQuat->w = scale0 * quatFrom->w + scale1 * to1[3];
 
 	nResQuat = &XMLoadFloat4(resQuat);
+	std::cout << "W: " << resQuat->w << " X: " << resQuat->x << " Y: " << resQuat->y << " Z: " << resQuat->z << "\n";
 	delete(quatFrom);
 	delete(quatTo);
 	delete(resQuat);
@@ -451,7 +455,7 @@ void DemoGame::DrawScene()
 	//draw the cube
 	cube->Draw(deviceContext, pixelShader, vertexShader);
 	
-	//DrawDebugLines();
+	DrawDebugLines();
 
 	// Present the buffer
 	HR(swapChain->Present(0, 0));
