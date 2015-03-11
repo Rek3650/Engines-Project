@@ -25,6 +25,8 @@
 #include <d3dcompiler.h>
 #include "DemoGame.h"
 
+#include <iostream>
+
 using namespace DirectX;
 
 #pragma region Win32 Entry Point (WinMain)
@@ -48,7 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 #pragma endregion
-
+#pragma comment(linker, "/subsystem:\"console\" /entry:\"WinMainCRTStartup\"")
 #pragma region Constructor / Destructor
 
 DemoGame::DemoGame(HINSTANCE hInstance) : DXGame(hInstance)
@@ -352,13 +354,16 @@ void DemoGame::UpdateScene(float dt)
 	square->Update(deviceContext);
 
 	cube->Update(deviceContext);
-	//Slerp(fromQuat, toQuat, 10, &cube->rotation);
+	cube-> rotation = Slerp(fromQuat, toQuat, 1000, &cube->rotation);
+	XMFLOAT4* temp = new XMFLOAT4();
+	XMStoreFloat4(temp, cube->rotation);
+	//std::cout << "W: " << temp->w << " X: " << temp->x << " Y: " << temp->y << " Z: " << temp->z << "\n";
 
 	splinePts.clear();
 	splinePts = spline.makeSpline(ctrlPts, 100);
 }
 
-void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
+XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
 {
 	XMFLOAT4* quatFrom = new XMFLOAT4();
 	XMFLOAT4* quatTo = new XMFLOAT4();
@@ -368,6 +373,8 @@ void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTO
 	XMStoreFloat4(quatTo, *nQuatTo);
 	XMStoreFloat4(resQuat, *nResQuat);
 
+
+	std::cout << "W: " << resQuat->w << " X: " << resQuat->x << " Y: " << resQuat->y << " Z: " << resQuat->z << "\n";
 	float to1[4];
 	double omega, cosom, sinom, scale0, scale1;
 	// calc cosine
@@ -388,8 +395,9 @@ void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTO
 		to1[2] = quatTo->z;
 		to1[3] = quatTo->w;
 	}
+	std::cout << cosom;
 	// calculate coefficients
-	if ((1.0 - cosom) > .001)//DELTA) 
+	if ((1.0 - cosom) > .05)//DELTA) 
 	{
 		// standard case (slerp)
 		omega = acos(cosom);
@@ -411,9 +419,11 @@ void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTO
 	resQuat->w = scale0 * quatFrom->w + scale1 * to1[3];
 
 	nResQuat = &XMLoadFloat4(resQuat);
+	std::cout << "W: " << resQuat->w << " X: " << resQuat->x << " Y: " << resQuat->y << " Z: " << resQuat->z << "\n";
 	delete(quatFrom);
 	delete(quatTo);
 	delete(resQuat);
+	return *nResQuat;
 }
 
 // Clear the screen, redraw everything, present
