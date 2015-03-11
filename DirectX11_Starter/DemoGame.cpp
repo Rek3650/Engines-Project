@@ -74,10 +74,13 @@ DemoGame::~DemoGame()
 
 	delete triangle;
 	delete square;
+	delete cube;
 	delete pentagon;
 	delete triMat;
 	delete primitiveBatch;
 	delete basicEffect;
+	delete toQuat;
+	delete fromQuat;
 }
 
 #pragma endregion
@@ -148,6 +151,10 @@ bool DemoGame::Init()
 	ctrlPts.push_back(XMFLOAT3(1, 0, 0));
 	ctrlPts.push_back(XMFLOAT3(1.5f, 1, 0));
 
+	fromQuat = new XMVECTOR(cube->rotation);
+	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(0, 0, 2000));
+	 
+
 	return true;
 }
 
@@ -188,6 +195,36 @@ void DemoGame::CreateGeometryBuffers()
 	square = new GameEntity(squareVerts, 4, squareInds, 6, device, triMat);
 	square->scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
 	square->translation = XMFLOAT3(1.0f, 0.0f, 0.0f);
+
+	Vertex cubeVerts[] =
+	{
+		{ XMFLOAT3(-0.5, 0.5, 0.5), blue, XMFLOAT2(0, 0) },
+		{ XMFLOAT3(0.5, 0.5, 0.5), blue, XMFLOAT2(1, 0) },
+		{ XMFLOAT3(0.5, -0.5, 0.5), blue, XMFLOAT2(1, 1) },
+		{ XMFLOAT3(-0.5, -0.5, 0.5), blue, XMFLOAT2(0, 1) },
+		{ XMFLOAT3(-0.5, 0.5, -0.5), blue, XMFLOAT2(0, 0) },
+		{ XMFLOAT3(0.5, 0.5, -0.5), blue, XMFLOAT2(1, 0) },
+		{ XMFLOAT3(0.5, -0.5, -0.5), blue, XMFLOAT2(1, 1) },
+		{ XMFLOAT3(-0.5, -0.5, -0.5), blue, XMFLOAT2(0, 1) }
+	};
+	UINT cubeInds[] =
+	{
+		1, 2, 3,
+		0, 1, 3,
+		5, 6, 2,
+		1, 5, 2,
+		4, 7, 6,
+		5, 4, 6,
+		0, 3, 7,
+		4, 0, 7,
+		5, 1, 0,
+		4, 5, 0,
+		2, 6, 7,
+		3, 2, 7
+	};
+	cube = new GameEntity(cubeVerts, 8, cubeInds, 36, device, triMat);
+	cube->scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	cube->translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	// make a pentagon
 	Vertex pentagonVerts[] =
@@ -314,8 +351,69 @@ void DemoGame::UpdateScene(float dt)
 	square->translation = spline.getPointOnSpline(ctrlPts, splineIndex);
 	square->Update(deviceContext);
 
+	cube->Update(deviceContext);
+	//Slerp(fromQuat, toQuat, 10, &cube->rotation);
+
 	splinePts.clear();
 	splinePts = spline.makeSpline(ctrlPts, 100);
+}
+
+void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
+{
+	XMFLOAT4* quatFrom = new XMFLOAT4();
+	XMFLOAT4* quatTo = new XMFLOAT4();
+	XMFLOAT4* resQuat = new XMFLOAT4();
+
+	XMStoreFloat4(quatFrom, *nQuatFrom);
+	XMStoreFloat4(quatTo, *nQuatTo);
+	XMStoreFloat4(resQuat, *nResQuat);
+
+	float to1[4];
+	double omega, cosom, sinom, scale0, scale1;
+	// calc cosine
+	cosom = quatFrom->x * quatTo->x + quatFrom->y * quatTo->y + quatFrom->z * quatTo->z
+		+ quatFrom->w * quatTo->w;
+	// adjust signs (if necessary)
+	if (cosom <0.0)
+	{
+		cosom = -cosom; to1[0] = -quatTo->x;
+		to1[1] = -quatTo->y;
+		to1[2] = -quatTo->z;
+		to1[3] = -quatTo->w;
+	}
+	else  
+	{
+		to1[0] = quatTo->x;
+		to1[1] = quatTo->y;
+		to1[2] = quatTo->z;
+		to1[3] = quatTo->w;
+	}
+	// calculate coefficients
+	if ((1.0 - cosom) > .001)//DELTA) 
+	{
+		// standard case (slerp)
+		omega = acos(cosom);
+		sinom = sin(omega);
+		scale0 = sin((1.0 - time) * omega) / sinom;
+		scale1 = sin(time * omega) / sinom;
+	}
+	else 
+	{
+		// "from" and "to" quaternions are very close 
+		//  ... so we can do a linear interpolation
+		scale0 = 1.0 - time;
+		scale1 = time;
+	}
+	// calculate final values
+	resQuat->x = scale0 * quatFrom->x + scale1 * to1[0];
+	resQuat->y = scale0 * quatFrom->y + scale1 * to1[1];
+	resQuat->z = scale0 * quatFrom->z + scale1 * to1[2];
+	resQuat->w = scale0 * quatFrom->w + scale1 * to1[3];
+
+	nResQuat = &XMLoadFloat4(resQuat);
+	delete(quatFrom);
+	delete(quatTo);
+	delete(resQuat);
 }
 
 // Clear the screen, redraw everything, present
@@ -343,6 +441,9 @@ void DemoGame::DrawScene()
 
 	// draw the pentagon
 	//pentagon->Draw(deviceContext, pixelShader, vertexShader);
+
+	//draw the cube
+	cube->Draw(deviceContext, pixelShader, vertexShader);
 	
 	DrawDebugLines();
 

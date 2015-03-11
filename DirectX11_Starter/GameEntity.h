@@ -27,7 +27,7 @@ public:
 	DirectX::XMFLOAT4X4 viewMatrix;
 	DirectX::XMFLOAT4X4 projectionMatrix;
 	DirectX::XMFLOAT3 scale;
-	FLOAT rotation;
+	DirectX::XMVECTOR rotation;
 	DirectX::XMFLOAT3 translation;
 	Material* mat;
 

@@ -46,6 +46,7 @@ private:
 	// Initialization for our "game" demo
 	void CreateGeometryBuffers();
 	void LoadShadersAndInputLayout();
+	void Slerp(XMVECTOR* quatFrom, XMVECTOR* quatTo, float time, XMVECTOR* resQuat);
 
 private:
 	// Buffers to hold actual geometry
@@ -67,6 +68,9 @@ private:
 	XMFLOAT4X4 viewMatrix;
 	XMFLOAT4X4 projectionMatrix;
 
+	XMVECTOR* fromQuat;
+	XMVECTOR* toQuat;
+
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;
@@ -74,6 +78,7 @@ private:
 	// test Game Entities
 	GameEntity* triangle;
 	GameEntity* square;
+	GameEntity* cube;
 	GameEntity* pentagon;
 	// variables for messing with the test transforms
 	int triangleXdir;

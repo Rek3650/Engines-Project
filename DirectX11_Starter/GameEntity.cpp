@@ -9,7 +9,8 @@ GameEntity::GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numInd
 	// set up the transformations and mesh
 	this->numIndices = numIndices;
 	scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	rotation = 0.0f;
+	//rotation = 0.0f;
+	rotation = DirectX::XMQuaternionIdentity();
 	translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mesh = new Mesh(vertices, numVerts, indices, numIndices, device);
 
@@ -63,7 +64,8 @@ void GameEntity::Update(ID3D11DeviceContext* deviceContext)
 
 	// play with the scale of the shape
 	XMMATRIX s = XMMatrixScaling(scale.x, scale.y, scale.z);
-	XMMATRIX r = XMMatrixRotationZ(rotation);
+	XMMATRIX r = XMMatrixRotationQuaternion(rotation);
+	//XMMATRIX r = XMMatrixRotationX(rotation);
 	XMMATRIX t = XMMatrixTranslation(translation.x, translation.y, translation.z);
 	XMMATRIX w = s * r * t;
 	XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(w));
