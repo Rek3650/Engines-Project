@@ -352,10 +352,10 @@ void DemoGame::UpdateScene(float dt)
 	square->Update(deviceContext);
 
 	cube->Update(deviceContext);
-	//Slerp(fromQuat, toQuat, 10, &cube->rotation);
+	Slerp(fromQuat, toQuat, 10, &cube->rotation);
 
 	splinePts.clear();
-	splinePts = spline.makeSpline(ctrlPts, 100);
+	splinePts = spline.sseMakeSpline(ctrlPts, 100);
 }
 
 void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)

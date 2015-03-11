@@ -14,10 +14,13 @@ public:
 
 	std::vector<XMFLOAT3> makeSpline(const std::vector<XMFLOAT3>& ctrlPts, int numDiv);
 	XMFLOAT3 getPointOnSpline(const std::vector<XMFLOAT3>& ctrlPts, float t);
+	std::vector<XMFLOAT3> sseMakeSpline(const std::vector<XMFLOAT3>& ctrlPts, int numDiv);
+	XMFLOAT3 sseGetPointOnSpline(const std::vector<XMFLOAT3>& ctrlPts, float t);
 
 private:
 	std::vector<int> knotVector;
 	float calculateWeightForPointI(int i, int k, int numCtrlPts, float t);
+	float sseCalculateWeightForPointI(int i, int k, int cps, float t);
 	float knot(int indexForKnot);
 	void createKnotVector(int curveOrderK, int numControlPoints);
 };
