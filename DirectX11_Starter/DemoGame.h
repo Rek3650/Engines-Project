@@ -46,7 +46,7 @@ private:
 	// Initialization for our "game" demo
 	void CreateGeometryBuffers();
 	void LoadShadersAndInputLayout();
-	void Slerp(XMVECTOR* quatFrom, XMVECTOR* quatTo, float time, XMVECTOR* resQuat);
+	XMVECTOR Slerp(XMVECTOR* quatFrom, XMVECTOR* quatTo, float time, XMVECTOR* resQuat);
 
 private:
 	// Buffers to hold actual geometry

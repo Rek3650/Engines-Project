@@ -25,6 +25,8 @@
 #include <d3dcompiler.h>
 #include "DemoGame.h"
 
+#include <iostream>
+
 using namespace DirectX;
 
 #pragma region Win32 Entry Point (WinMain)
@@ -48,7 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 #pragma endregion
-
+#pragma comment(linker, "/subsystem:\"console\" /entry:\"WinMainCRTStartup\"")
 #pragma region Constructor / Destructor
 
 DemoGame::DemoGame(HINSTANCE hInstance) : DXGame(hInstance)
@@ -152,7 +154,7 @@ bool DemoGame::Init()
 	ctrlPts.push_back(XMFLOAT3(1.5f, 1, 0));
 
 	fromQuat = new XMVECTOR(cube->rotation);
-	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(0, 0, 2000));
+	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(0, 0, 1.57079633));
 	 
 
 	return true;
@@ -202,8 +204,8 @@ void DemoGame::CreateGeometryBuffers()
 		{ XMFLOAT3(0.5, 0.5, 0.5), blue, XMFLOAT2(1, 0) },
 		{ XMFLOAT3(0.5, -0.5, 0.5), blue, XMFLOAT2(1, 1) },
 		{ XMFLOAT3(-0.5, -0.5, 0.5), blue, XMFLOAT2(0, 1) },
-		{ XMFLOAT3(-0.5, 0.5, -0.5), blue, XMFLOAT2(0, 0) },
-		{ XMFLOAT3(0.5, 0.5, -0.5), blue, XMFLOAT2(1, 0) },
+		{ XMFLOAT3(-0.5, 0.5, -0.5), blue, XMFLOAT2(1, 0) },
+		{ XMFLOAT3(0.5, 0.5, -0.5), blue, XMFLOAT2(0, 0) },
 		{ XMFLOAT3(0.5, -0.5, -0.5), blue, XMFLOAT2(1, 1) },
 		{ XMFLOAT3(-0.5, -0.5, -0.5), blue, XMFLOAT2(0, 1) }
 	};
@@ -352,13 +354,13 @@ void DemoGame::UpdateScene(float dt)
 	square->Update(deviceContext);
 
 	cube->Update(deviceContext);
-	Slerp(fromQuat, toQuat, 10, &cube->rotation);
+	cube-> rotation = Slerp(fromQuat, toQuat, splineIndex, &cube->rotation);
 
 	splinePts.clear();
 	splinePts = spline.sseMakeSpline(ctrlPts, 100);
 }
 
-void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
+XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
 {
 	XMFLOAT4* quatFrom = new XMFLOAT4();
 	XMFLOAT4* quatTo = new XMFLOAT4();
@@ -368,6 +370,8 @@ void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTO
 	XMStoreFloat4(quatTo, *nQuatTo);
 	XMStoreFloat4(resQuat, *nResQuat);
 
+
+	std::cout << "W: " << resQuat->w << " X: " << resQuat->x << " Y: " << resQuat->y << " Z: " << resQuat->z << "\n";
 	float to1[4];
 	double omega, cosom, sinom, scale0, scale1;
 	// calc cosine
@@ -388,8 +392,9 @@ void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTO
 		to1[2] = quatTo->z;
 		to1[3] = quatTo->w;
 	}
+	std::cout << cosom;
 	// calculate coefficients
-	if ((1.0 - cosom) > .001)//DELTA) 
+	if ((1.0 - cosom) > .05)//DELTA) 
 	{
 		// standard case (slerp)
 		omega = acos(cosom);
@@ -414,6 +419,7 @@ void DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTO
 	delete(quatFrom);
 	delete(quatTo);
 	delete(resQuat);
+	return *nResQuat;
 }
 
 // Clear the screen, redraw everything, present
@@ -445,7 +451,7 @@ void DemoGame::DrawScene()
 	//draw the cube
 	cube->Draw(deviceContext, pixelShader, vertexShader);
 	
-	DrawDebugLines();
+	//DrawDebugLines();
 
 	// Present the buffer
 	HR(swapChain->Present(0, 0));
