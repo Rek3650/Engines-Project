@@ -65,7 +65,6 @@ void GameEntity::Update(ID3D11DeviceContext* deviceContext)
 	// play with the scale of the shape
 	XMMATRIX s = XMMatrixScaling(scale.x, scale.y, scale.z);
 	XMMATRIX r = XMMatrixRotationQuaternion(rotation);
-	//XMMATRIX r = XMMatrixRotationX(rotation);
 	XMMATRIX t = XMMatrixTranslation(translation.x, translation.y, translation.z);
 	XMMATRIX w = s * r * t;
 	XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(w));
