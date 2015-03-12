@@ -153,6 +153,7 @@ bool DemoGame::Init()
 	ctrlPts.push_back(XMFLOAT3(1, 0, 0));
 	ctrlPts.push_back(XMFLOAT3(1.5f, 1, 0));
 
+	//The start and end Quaternion for slerping
 	fromQuat = new XMVECTOR(cube->rotation);
 	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(1, -3.14159265f, 0));
 	 
@@ -199,6 +200,7 @@ void DemoGame::CreateGeometryBuffers()
 	square->scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
 	square->translation = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
+	//Create a cube
 	Vertex cubeVerts[] =
 	{
 		{ XMFLOAT3(-0.5, 0.5, 0.5), blue, XMFLOAT2(0, 0) },
@@ -207,8 +209,8 @@ void DemoGame::CreateGeometryBuffers()
 		{ XMFLOAT3(-0.5, -0.5, 0.5), blue, XMFLOAT2(0, 1) },
 		{ XMFLOAT3(-0.5, 0.5, -0.5), blue, XMFLOAT2(1, 0) },
 		{ XMFLOAT3(0.5, 0.5, -0.5), blue, XMFLOAT2(0, 0) },
-		{ XMFLOAT3(0.5, -0.5, -0.5), blue, XMFLOAT2(1, 1) },
-		{ XMFLOAT3(-0.5, -0.5, -0.5), blue, XMFLOAT2(0, 1) }
+		{ XMFLOAT3(0.5, -0.5, -0.5), blue, XMFLOAT2(0, 1) },
+		{ XMFLOAT3(-0.5, -0.5, -0.5), blue, XMFLOAT2(1, 1) }
 	};
 	UINT cubeInds[] =
 	{
@@ -383,12 +385,11 @@ XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMV
 	XMFLOAT4* quatTo = new XMFLOAT4();
 	XMFLOAT4* resQuat = new XMFLOAT4();
 
+	//Convert XMVECTOR parameters into floats that can be accessed and manipulated
 	XMStoreFloat4(quatFrom, *nQuatFrom);
 	XMStoreFloat4(quatTo, *nQuatTo);
 	XMStoreFloat4(resQuat, *nResQuat);
 
-
-	//std::cout << "W: " << resQuat->w << " X: " << resQuat->x << " Y: " << resQuat->y << " Z: " << resQuat->z << "\n";
 	float to1[4];
 	float omega, cosom, sinom, scale0, scale1;
 	// calc cosine
@@ -410,7 +411,7 @@ XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMV
 		to1[2] = quatTo->z;
 		to1[3] = quatTo->w;
 	}
-	//std::cout << cosom;
+
 	// calculate coefficients
 	if ((1.0 - cosom) > .05)//DELTA) 
 	{
@@ -433,7 +434,10 @@ XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMV
 	resQuat->z = scale0 * quatFrom->z + scale1 * to1[2];
 	resQuat->w = scale0 * quatFrom->w + scale1 * to1[3];
 
+	//Put floats back into a XMVECTOR for return type
 	nResQuat = &XMLoadFloat4(resQuat);
+
+	//Clean up
 	delete(quatFrom);
 	delete(quatTo);
 	delete(resQuat);
@@ -442,6 +446,7 @@ XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMV
 
 XMVECTOR DemoGame::SlerpSSE(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
 {
+	//pointers to store values recevied from parameters
 	XMFLOAT4* quatFrom = new XMFLOAT4();
 	XMFLOAT4* quatTo = new XMFLOAT4();
 	XMFLOAT4* resQuat = new XMFLOAT4();
@@ -450,25 +455,26 @@ XMVECTOR DemoGame::SlerpSSE(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, 
 	XMStoreFloat4(quatTo, *nQuatTo);
 	XMStoreFloat4(resQuat, *nResQuat);
 
-
-	//std::cout << "W: " << resQuat->w << " X: " << resQuat->x << " Y: " << resQuat->y << " Z: " << resQuat->z << "\n";
+	//Create a set of float[4] to use for SSE calculations
 	__declspec(align(16)) float to1[4];
 	__declspec(align(16)) float A[4] = { quatTo->x, quatTo->y, quatTo->z, quatTo->w };
 	__declspec(align(16)) float B[4] = { quatFrom->x, quatFrom->y, quatFrom->z, quatFrom->w };
 	__declspec(align(16)) float C[4];
 
+	//load float[4] into _m128
 	__m128 a = _mm_load_ps(&A[0]);
 	__m128 b = _mm_load_ps(&B[0]);
-
+	
+	// calc cos using SSE
 	__m128 c = _mm_mul_ps(a, b);
+	//Store result back into a float[4]
 	_mm_store_ps(&C[0], c);
 
 	float omega, cosom, sinom, scale0, scale1;
 
+	//Finish calculating cos
 	cosom = C[0] + C[1] + C[2] + C[3];
-	// calc cosine
-	//cosom = quatFrom->x * quatTo->x + quatFrom->y * quatTo->y + quatFrom->z * quatTo->z
-	//	+ quatFrom->w * quatTo->w;
+
 	// adjust signs (if necessary)
 	if (cosom <0.0)
 	{
@@ -485,9 +491,9 @@ XMVECTOR DemoGame::SlerpSSE(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, 
 		to1[2] = quatTo->z;
 		to1[3] = quatTo->w;
 	}
-	//std::cout << cosom;
+
 	// calculate coefficients
-	if ((1.0 - cosom) > .05)//DELTA) 
+	if ((1.0 - cosom) > .05)//DELTA
 	{
 		// standard case (slerp)
 		omega = acos(cosom);
@@ -507,6 +513,8 @@ XMVECTOR DemoGame::SlerpSSE(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, 
 	quatFrom->y *= scale0;
 	quatFrom->z *= scale0;
 	quatFrom->w *= scale0;
+	
+	//put everything into a float[4] to preform more SSE calculations
 	__declspec(align(16)) float D[4] = { quatFrom->x, quatFrom->y, quatFrom->z, quatFrom->w };
 
 	to1[0] *= scale1;
@@ -514,22 +522,30 @@ XMVECTOR DemoGame::SlerpSSE(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, 
 	to1[2] *= scale1;
 	to1[3] *= scale1;
 
+	//Load into _m128
 	__m128 d = _mm_load_ps(&to1[0]);
 	__m128 e = _mm_load_ps(&D[0]);
 
+	//add
 	__m128 f =_mm_add_ps(d, e);
+	//put back into float
 	_mm_store_ps(&D[0], f);
 
-	// calculate final values
+	// set final values
 	resQuat->x = D[0];
 	resQuat->y = D[1];
 	resQuat->z = D[2];
 	resQuat->w = D[3];
 
+	//Load output into correct file type
 	nResQuat = &XMLoadFloat4(resQuat);
+
+	//Clean up after our selves
 	delete(quatFrom);
 	delete(quatTo);
 	delete(resQuat);
+
+	//return
 	return *nResQuat;
 }
 
@@ -559,8 +575,10 @@ void DemoGame::DrawScene()
 	// draw the pentagon
 	//pentagon->Draw(deviceContext, pixelShader, vertexShader);
 
-	//draw the cube
+	//Draw the cube
 	cube->Draw(deviceContext, pixelShader, vertexShader);
+	
+	//Draw the spline
 	//DrawDebugLines();
 
 	// Present the buffer
