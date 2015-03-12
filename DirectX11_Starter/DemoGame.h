@@ -47,6 +47,7 @@ private:
 	void CreateGeometryBuffers();
 	void LoadShadersAndInputLayout();
 	XMVECTOR Slerp(XMVECTOR* quatFrom, XMVECTOR* quatTo, float time, XMVECTOR* resQuat);
+	XMVECTOR SlerpSSE(XMVECTOR* quatFrom, XMVECTOR* quatTo, float time, XMVECTOR* resQuat);
 
 private:
 	// Buffers to hold actual geometry

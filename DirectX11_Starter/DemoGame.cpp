@@ -24,7 +24,7 @@
 #include <Windows.h>
 #include <d3dcompiler.h>
 #include "DemoGame.h"
-
+#include <xmmintrin.h>
 #include <iostream>
 
 using namespace DirectX;
@@ -154,7 +154,7 @@ bool DemoGame::Init()
 	ctrlPts.push_back(XMFLOAT3(1.5f, 1, 0));
 
 	fromQuat = new XMVECTOR(cube->rotation);
-	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(0, 0, 1.57079633));
+	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(0, 0, 1.57079633f));
 	 
 
 	return true;
@@ -353,11 +353,11 @@ void DemoGame::UpdateScene(float dt)
 	square->translation = spline.getPointOnSpline(ctrlPts, splineIndex);
 	square->Update(deviceContext);
 
-	cube->Update(deviceContext);
-	cube-> rotation = Slerp(fromQuat, toQuat, splineIndex, &cube->rotation);
-
 	splinePts.clear();
 	splinePts = spline.sseMakeSpline(ctrlPts, 100);
+
+	cube->Update(deviceContext);
+	cube->rotation = SlerpSSE(fromQuat, toQuat, splineIndex, &cube->rotation);
 }
 
 XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
@@ -371,42 +371,43 @@ XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMV
 	XMStoreFloat4(resQuat, *nResQuat);
 
 
-	std::cout << "W: " << resQuat->w << " X: " << resQuat->x << " Y: " << resQuat->y << " Z: " << resQuat->z << "\n";
+	//std::cout << "W: " << resQuat->w << " X: " << resQuat->x << " Y: " << resQuat->y << " Z: " << resQuat->z << "\n";
 	float to1[4];
-	double omega, cosom, sinom, scale0, scale1;
+	float omega, cosom, sinom, scale0, scale1;
 	// calc cosine
 	cosom = quatFrom->x * quatTo->x + quatFrom->y * quatTo->y + quatFrom->z * quatTo->z
 		+ quatFrom->w * quatTo->w;
 	// adjust signs (if necessary)
 	if (cosom <0.0)
 	{
-		cosom = -cosom; to1[0] = -quatTo->x;
+		cosom = -cosom;
+		to1[0] = -quatTo->x;
 		to1[1] = -quatTo->y;
 		to1[2] = -quatTo->z;
 		to1[3] = -quatTo->w;
 	}
-	else  
+	else
 	{
 		to1[0] = quatTo->x;
 		to1[1] = quatTo->y;
 		to1[2] = quatTo->z;
 		to1[3] = quatTo->w;
 	}
-	std::cout << cosom;
+	//std::cout << cosom;
 	// calculate coefficients
 	if ((1.0 - cosom) > .05)//DELTA) 
 	{
 		// standard case (slerp)
 		omega = acos(cosom);
 		sinom = sin(omega);
-		scale0 = sin((1.0 - time) * omega) / sinom;
+		scale0 = sin((1.0f - time) * omega) / sinom;
 		scale1 = sin(time * omega) / sinom;
 	}
-	else 
+	else
 	{
 		// "from" and "to" quaternions are very close 
 		//  ... so we can do a linear interpolation
-		scale0 = 1.0 - time;
+		scale0 = 1.0f - time;
 		scale1 = time;
 	}
 	// calculate final values
@@ -414,6 +415,99 @@ XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMV
 	resQuat->y = scale0 * quatFrom->y + scale1 * to1[1];
 	resQuat->z = scale0 * quatFrom->z + scale1 * to1[2];
 	resQuat->w = scale0 * quatFrom->w + scale1 * to1[3];
+
+	nResQuat = &XMLoadFloat4(resQuat);
+	delete(quatFrom);
+	delete(quatTo);
+	delete(resQuat);
+	return *nResQuat;
+}
+
+XMVECTOR DemoGame::SlerpSSE(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
+{
+	XMFLOAT4* quatFrom = new XMFLOAT4();
+	XMFLOAT4* quatTo = new XMFLOAT4();
+	XMFLOAT4* resQuat = new XMFLOAT4();
+
+	XMStoreFloat4(quatFrom, *nQuatFrom);
+	XMStoreFloat4(quatTo, *nQuatTo);
+	XMStoreFloat4(resQuat, *nResQuat);
+
+
+	//std::cout << "W: " << resQuat->w << " X: " << resQuat->x << " Y: " << resQuat->y << " Z: " << resQuat->z << "\n";
+	__declspec(align(16)) float to1[4];
+	__declspec(align(16)) float A[4] = { quatTo->x, quatTo->y, quatTo->z, quatTo->w };
+	__declspec(align(16)) float B[4] = { quatFrom->x, quatFrom->y, quatFrom->z, quatFrom->w };
+	__declspec(align(16)) float C[4];
+
+	__m128 a = _mm_load_ps(&A[0]);
+	__m128 b = _mm_load_ps(&B[0]);
+
+	__m128 c = _mm_mul_ps(a, b);
+	_mm_store_ps(&C[0], c);
+
+	float omega, cosom, sinom, scale0, scale1;
+
+	cosom = C[0] + C[1] + C[2] + C[3];
+	// calc cosine
+	//cosom = quatFrom->x * quatTo->x + quatFrom->y * quatTo->y + quatFrom->z * quatTo->z
+	//	+ quatFrom->w * quatTo->w;
+	// adjust signs (if necessary)
+	if (cosom <0.0)
+	{
+		cosom = -cosom;
+		to1[0] = -quatTo->x;
+		to1[1] = -quatTo->y;
+		to1[2] = -quatTo->z;
+		to1[3] = -quatTo->w;
+	}
+	else
+	{
+		to1[0] = quatTo->x;
+		to1[1] = quatTo->y;
+		to1[2] = quatTo->z;
+		to1[3] = quatTo->w;
+	}
+	//std::cout << cosom;
+	// calculate coefficients
+	if ((1.0 - cosom) > .05)//DELTA) 
+	{
+		// standard case (slerp)
+		omega = acos(cosom);
+		sinom = sin(omega);
+		scale0 = sin((1.0f - time) * omega) / sinom;
+		scale1 = sin(time * omega) / sinom;
+	}
+	else
+	{
+		// "from" and "to" quaternions are very close 
+		//  ... so we can do a linear interpolation
+		scale0 = 1.0f - time;
+		scale1 = time;
+	}
+
+	quatFrom->x *= scale0;
+	quatFrom->y *= scale0;
+	quatFrom->z *= scale0;
+	quatFrom->w *= scale0;
+	__declspec(align(16)) float D[4] = { quatFrom->x, quatFrom->y, quatFrom->z, quatFrom->w };
+
+	to1[0] *= scale1;
+	to1[1] *= scale1;
+	to1[2] *= scale1;
+	to1[3] *= scale1;
+
+	__m128 d = _mm_load_ps(&to1[0]);
+	__m128 e = _mm_load_ps(&D[0]);
+
+	__m128 f =_mm_add_ps(d, e);
+	_mm_store_ps(&D[0], f);
+
+	// calculate final values
+	resQuat->x = D[0];
+	resQuat->y = D[1];
+	resQuat->z = D[2];
+	resQuat->w = D[3];
 
 	nResQuat = &XMLoadFloat4(resQuat);
 	delete(quatFrom);
