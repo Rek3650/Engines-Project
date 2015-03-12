@@ -119,7 +119,7 @@ bool DemoGame::Init()
 		0, 
 		&SRV));
 	triMat = new Material(SRV, sampState);
-
+	cubes.clear();
 	// Set up buffers and such
 	CreateGeometryBuffers();
 	LoadShadersAndInputLayout();
@@ -154,8 +154,9 @@ bool DemoGame::Init()
 	ctrlPts.push_back(XMFLOAT3(1.5f, 1, 0));
 
 	fromQuat = new XMVECTOR(cube->rotation);
-	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(0, 0, 1.57079633f));
+	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(1, -3.14159265f, 0));
 	 
+	elapsedTime = 0;
 
 	return true;
 }
@@ -227,6 +228,16 @@ void DemoGame::CreateGeometryBuffers()
 	cube = new GameEntity(cubeVerts, 8, cubeInds, 36, device, triMat);
 	cube->scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
 	cube->translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	/*
+	for(int i = 0; i < 10; i++)
+	{
+
+		cubes.push_back(new GameEntity(cubeVerts, 8, cubeInds, 36, device, triMat));
+		cubes[i]->scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
+		cubes[i]->translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	}
+	*/
+
 
 	// make a pentagon
 	Vertex pentagonVerts[] =
@@ -323,6 +334,7 @@ void DemoGame::OnResize()
 #pragma region Game Loop
 void DemoGame::UpdateScene(float dt)
 {
+	elapsedTime += dt;
 	/*
 	// make the triangle move around and stay on screen
 	if(triangle->translation.x > 2 || triangle->translation.x < -2) triangleXdir *= -1;
@@ -350,14 +362,19 @@ void DemoGame::UpdateScene(float dt)
 		dir *= -1;
 	}
 	splineIndex += dt/2 * dir;
-	square->translation = spline.getPointOnSpline(ctrlPts, splineIndex);
-	square->Update(deviceContext);
 
-	splinePts.clear();
-	splinePts = spline.sseMakeSpline(ctrlPts, 100);
-
+	cube->translation = spline.sseGetPointOnSpline(ctrlPts, splineIndex);
+	cube->rotation = SlerpSSE(fromQuat, toQuat, elapsedTime, &cube->rotation);
 	cube->Update(deviceContext);
-	cube->rotation = SlerpSSE(fromQuat, toQuat, splineIndex, &cube->rotation);
+	/*
+	for each (GameEntity* cube in cubes)
+	{
+		cube->translation = spline.sseGetPointOnSpline(ctrlPts, splineIndex-.2f);
+	}
+	*/
+
+	//splinePts.clear();
+	//splinePts = spline.sseMakeSpline(ctrlPts, 100);
 }
 
 XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
@@ -544,7 +561,6 @@ void DemoGame::DrawScene()
 
 	//draw the cube
 	cube->Draw(deviceContext, pixelShader, vertexShader);
-	
 	//DrawDebugLines();
 
 	// Present the buffer
@@ -563,8 +579,8 @@ void DemoGame::DrawDebugLines()
 	primitiveBatch->Begin();
 	////////////////////////////////////
 
-	primitiveBatch->DrawLine(VertexPositionColor(square->translation, XMFLOAT4()), 
-			VertexPositionColor(XMFLOAT3(0, 0, 0), XMFLOAT4()));
+	//primitiveBatch->DrawLine(VertexPositionColor(cube->translation, XMFLOAT4()), 
+	//		VertexPositionColor(XMFLOAT3(0, 0, 0), XMFLOAT4()));
 
 	for(unsigned int i = 1; i < ctrlPts.size(); i++)
 	{

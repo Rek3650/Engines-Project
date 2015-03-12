@@ -79,6 +79,7 @@ private:
 	// test Game Entities
 	GameEntity* triangle;
 	GameEntity* square;
+	std::vector<GameEntity*> cubes;
 	GameEntity* cube;
 	GameEntity* pentagon;
 	// variables for messing with the test transforms
@@ -100,4 +101,6 @@ private:
 	Spline spline;
 	float splineIndex;
 	int dir;
+
+	float elapsedTime;
 };

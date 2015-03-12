@@ -135,7 +135,7 @@ XMFLOAT3 Spline::sseGetPointOnSpline(const std::vector<XMFLOAT3>& ctrlPts, float
 
 	int subCurveOrder = 4;
 
-	XMFLOAT3 splinePoint(0,0,0);
+	XMFLOAT3 newPoint(0,0,0);
 
 	if(ctrlPts.size() >= subCurveOrder)
     {
@@ -143,16 +143,26 @@ XMFLOAT3 Spline::sseGetPointOnSpline(const std::vector<XMFLOAT3>& ctrlPts, float
 
 		t = t * ( ctrlPts.size() - (subCurveOrder-1) ) + subCurveOrder-1;
 
+       __m128 weight;
+		__m128 controlPoint;
+		__m128 weightedControlPoint;
+		__m128 splinePoint;
+		__declspec(align(16)) float temp[4];
         for(int i=1; i <= ctrlPts.size(); i++)
         {
             float weightForControl = sseCalculateWeightForPointI(i, subCurveOrder, ctrlPts.size(), t);
 			XMFLOAT3 ctrlPt = ctrlPts.at(i-1);
-			XMFLOAT3 weightedCtrlPt(ctrlPt.x*weightForControl, ctrlPt.y*weightForControl, ctrlPt.z*weightForControl);
-			splinePoint = XMFLOAT3(weightedCtrlPt.x+splinePoint.x, weightedCtrlPt.y+splinePoint.y, weightedCtrlPt.z+splinePoint.z);
+			controlPoint = _mm_set_ps(ctrlPt.x, ctrlPt.y, ctrlPt.z, 0);
+			weight = _mm_set_ps(weightForControl, weightForControl, weightForControl, weightForControl);
+			weightedControlPoint = _mm_mul_ps(controlPoint, weight);
+			splinePoint = _mm_set_ps(newPoint.x, newPoint.y, newPoint.z, 0);
+			splinePoint = _mm_add_ps(splinePoint, weightedControlPoint);
+			_mm_store_ps(temp, splinePoint);
+			newPoint = XMFLOAT3(temp[3], temp[2], temp[1]);
         }
 	}
 
-	return splinePoint;
+	return newPoint;
 }
 
 //i = the weight we're looking for, i should go from 1 to n+1, where n+1 is equal to the total number of control points.
