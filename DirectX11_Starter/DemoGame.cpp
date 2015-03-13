@@ -74,10 +74,7 @@ DemoGame::~DemoGame()
 	ReleaseMacro(vsConstantBuffer);
 	ReleaseMacro(inputLayout);
 
-	delete triangle;
-	delete square;
 	delete cube;
-	delete pentagon;
 	delete triMat;
 	delete primitiveBatch;
 	delete basicEffect;
@@ -124,11 +121,6 @@ bool DemoGame::Init()
 	CreateGeometryBuffers();
 	LoadShadersAndInputLayout();
 
-	// variables for making the objects move
-	triangleXdir = 1;
-	triangleYdir = 1;
-	pentagonScaleDir = 1;
-
 	// for drawing lines
 	primitiveBatch = new PrimitiveBatch<VertexPositionColor>(deviceContext);
 	basicEffect = new BasicEffect(device);
@@ -138,20 +130,27 @@ bool DemoGame::Init()
 	dir = 1;
 	ctrlPts.clear();
 	splinePts.clear();
+	
 	// set some default values for the ctrlPts
-	/*ctrlPts.push_back(XMFLOAT3(-0.9f, -0.9f, 0));
-	ctrlPts.push_back(XMFLOAT3(-0.9f, 0.9f, 0));
-	ctrlPts.push_back(XMFLOAT3(0.9f, 0.9f, 0));
-	ctrlPts.push_back(XMFLOAT3(0.9f, -0.9f, 0));
-	ctrlPts.push_back(XMFLOAT3(-0.9f, -0.9f, 0));
-	ctrlPts.push_back(XMFLOAT3(-0.9f, 0.9f, 0));
-	ctrlPts.push_back(XMFLOAT3(0.9f, 0.9f, 0));*/
+	/* circle
+	ctrlPts.push_back(XMFLOAT3(-1, -1, 0));
+	ctrlPts.push_back(XMFLOAT3(-1, 1, 0));
+	ctrlPts.push_back(XMFLOAT3(1, 1, 0));
+	ctrlPts.push_back(XMFLOAT3(1, -1, 0));
+	ctrlPts.push_back(XMFLOAT3(-1, -1, 0));
+	ctrlPts.push_back(XMFLOAT3(-1, 1, 0));
+	ctrlPts.push_back(XMFLOAT3(1, 1, 0));
+	/*/// sin wave
 	ctrlPts.push_back(XMFLOAT3(-1.5f, -1, 0));
 	ctrlPts.push_back(XMFLOAT3(-1, 0, 0));
 	ctrlPts.push_back(XMFLOAT3(-0.5f, 1, 0));
 	ctrlPts.push_back(XMFLOAT3(0.5f, -1, 0));
 	ctrlPts.push_back(XMFLOAT3(1, 0, 0));
 	ctrlPts.push_back(XMFLOAT3(1.5f, 1, 0));
+	//*/
+
+	// make the spline
+	splinePts = spline.sseMakeSpline(ctrlPts, 100);
 
 	//The start and end Quaternion for slerping
 	fromQuat = new XMVECTOR(cube->rotation);
@@ -170,35 +169,6 @@ void DemoGame::CreateGeometryBuffers()
 	XMFLOAT4 blue	= XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 	XMFLOAT4 yellow	= XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// make a triangle
-	Vertex triangleVerts[] =
-	{
-		{ XMFLOAT3(+0.0f, +1.0f, +0.0f), red, XMFLOAT2(0.5, 0) },
-		{ XMFLOAT3(+1.5f, -1.0f, +0.0f), blue, XMFLOAT2(1, 1) },
-		{ XMFLOAT3(-1.5f, -1.0f, +0.0f), green, XMFLOAT2(0, 1) },
-	};
-	UINT triangleInds[] = { 0, 1, 2 };
-	triangle = new GameEntity(triangleVerts, 3, triangleInds, 3, device, triMat);
-	triangle->scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
-	triangle->translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
-	// make a square
-	Vertex squareVerts[] = 
-	{
-		{ XMFLOAT3(+1.0f, +1.0f, +0.0f), red, XMFLOAT2(0, 0) },
-		{ XMFLOAT3(+1.0f, -1.0f, +0.0f), blue, XMFLOAT2(1, 0) },
-		{ XMFLOAT3(-1.0f, -1.0f, +0.0f), green, XMFLOAT2(1, 1) },
-		{ XMFLOAT3(-1.0f, +1.0f, +0.0f), yellow, XMFLOAT2(0, 1) },
-	};
-	UINT squareInds[] = 
-	{	
-		0, 1, 2, 
-		3, 0, 2
-	};
-	square = new GameEntity(squareVerts, 4, squareInds, 6, device, triMat);
-	square->scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
-	square->translation = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
 	//Create a cube
 	Vertex cubeVerts[] =
@@ -239,26 +209,6 @@ void DemoGame::CreateGeometryBuffers()
 		cubes[i]->translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	}
 	*/
-
-
-	// make a pentagon
-	Vertex pentagonVerts[] =
-	{
-		{ XMFLOAT3(+0.0f, +1.0f, +0.0f), red, XMFLOAT2(0.5f, 0.0f) },
-		{ XMFLOAT3(+1.0f, +0.1f, +0.0f), blue, XMFLOAT2(0.0f, 0.1f) },
-		{ XMFLOAT3(+0.5f, -1.0f, +0.0f), green, XMFLOAT2(0.25f, 1.0f) },
-		{ XMFLOAT3(-0.5f, -1.0f, +0.0f), yellow, XMFLOAT2(0.75f, 1.0f) },
-		{ XMFLOAT3(-1.0f, +0.1f, +0.0f), white, XMFLOAT2(1.0f, 0.1f) },
-	};
-	UINT pentagonInds[] = 
-	{ 
-		0, 1, 2,
-		3, 0, 2,
-		4, 0, 3
-	};
-	pentagon = new GameEntity(pentagonVerts, 5, pentagonInds, 9, device, triMat);
-	pentagon->scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
-	pentagon->translation = XMFLOAT3(-1.0f, 0.0f, 0.0f);
 }
 
 // Loads shaders from compiled shader object (.cso) files, and uses the
@@ -337,22 +287,7 @@ void DemoGame::OnResize()
 void DemoGame::UpdateScene(float dt)
 {
 	elapsedTime += dt;
-	/*
-	// make the triangle move around and stay on screen
-	if(triangle->translation.x > 2 || triangle->translation.x < -2) triangleXdir *= -1;
-	if(triangle->translation.y > 2 || triangle->translation.y < -2) triangleYdir *= -1;
-	triangle->translation = XMFLOAT3(triangle->translation.x+((dt/2)*triangleXdir), triangle->translation.y+(dt*triangleYdir), triangle->translation.z);
-	triangle->Update(deviceContext);
-	
-	// make the square rotate
-	square->rotation += dt;
-	square->Update(deviceContext);
-	
-	// make the pentagon pulsate
-	if(pentagon->scale.x > 2 || pentagon->scale.x < 0.15) pentagonScaleDir *= -1;
-	pentagon->scale = XMFLOAT3(pentagon->scale.x+(dt*pentagonScaleDir), pentagon->scale.y+(dt*pentagonScaleDir), pentagon->scale.z+(dt*pentagonScaleDir));
-	pentagon->Update(deviceContext);
-	*/
+
 	if(splineIndex > 1)
 	{
 		splineIndex = 1;
@@ -375,7 +310,6 @@ void DemoGame::UpdateScene(float dt)
 	}
 	*/
 
-	//splinePts.clear();
 	//splinePts = spline.sseMakeSpline(ctrlPts, 100);
 }
 
@@ -566,19 +500,12 @@ void DemoGame::DrawScene()
 	deviceContext->IASetInputLayout(inputLayout);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// draw the triangle
-	//triangle->Draw(deviceContext, pixelShader, vertexShader);
-	
-	// draw the square
-	//square->Draw(deviceContext, pixelShader, vertexShader);
-
-	// draw the pentagon
-	//pentagon->Draw(deviceContext, pixelShader, vertexShader);
-
 	//Draw the cube
 	cube->Draw(deviceContext, pixelShader, vertexShader);
 	
-	//Draw the spline
+	// Draw the spline
+	// it doesn't match the actual path of the cube because I'm still working on the debug lines
+	// right now they are very wonky and the lines are in a different world space than the rest of the objects
 	//DrawDebugLines();
 
 	// Present the buffer

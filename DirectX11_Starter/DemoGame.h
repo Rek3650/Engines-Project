@@ -77,15 +77,8 @@ private:
 	POINT prevMousePos;
 
 	// test Game Entities
-	GameEntity* triangle;
-	GameEntity* square;
 	std::vector<GameEntity*> cubes;
 	GameEntity* cube;
-	GameEntity* pentagon;
-	// variables for messing with the test transforms
-	int triangleXdir;
-	int triangleYdir;
-	int pentagonScaleDir;
 
 	// texture stuff
 	const wchar_t* epicTriforce;
