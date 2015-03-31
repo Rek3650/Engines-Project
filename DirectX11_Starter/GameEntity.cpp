@@ -9,7 +9,6 @@ GameEntity::GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numInd
 	// set up the transformations and mesh
 	this->numIndices = numIndices;
 	scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	//rotation = 0.0f;
 	rotation = DirectX::XMQuaternionIdentity();
 	translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mesh = new Mesh(vertices, numVerts, indices, numIndices, device);
