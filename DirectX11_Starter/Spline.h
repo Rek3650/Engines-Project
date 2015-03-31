@@ -19,8 +19,7 @@ public:
 
 private:
 	std::vector<int> knotVector;
-	float calculateWeightForPointI(int i, int k, int numCtrlPts, float t);
-	float sseCalculateWeightForPointI(int i, int k, int cps, float t);
+	float calculateWeightForPointI(int i, int k, float t);
 	float knot(int indexForKnot);
 	void createKnotVector(int curveOrderK, int numControlPoints);
 };
