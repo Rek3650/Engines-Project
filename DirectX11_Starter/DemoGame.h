@@ -46,8 +46,8 @@ private:
 	// Initialization for our "game" demo
 	void CreateGeometryBuffers();
 	void LoadShadersAndInputLayout();
-	XMVECTOR Slerp(XMVECTOR* quatFrom, XMVECTOR* quatTo, float time, XMVECTOR* resQuat);
-	XMVECTOR SlerpSSE(XMVECTOR* quatFrom, XMVECTOR* quatTo, float time, XMVECTOR* resQuat);
+	XMFLOAT4 Slerp(XMFLOAT4* quatFrom, XMFLOAT4* quatTo, float time, XMFLOAT4* resQuat);
+	XMFLOAT4 SlerpSSE(XMFLOAT4* quatFrom, XMFLOAT4* quatTo, float time, XMFLOAT4* resQuat);
 
 private:
 	// Buffers to hold actual geometry
@@ -69,8 +69,8 @@ private:
 	XMFLOAT4X4 viewMatrix;
 	XMFLOAT4X4 projectionMatrix;
 
-	XMVECTOR* fromQuat;
-	XMVECTOR* toQuat;
+	XMFLOAT4* fromQuat;
+	XMFLOAT4* toQuat;
 
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.

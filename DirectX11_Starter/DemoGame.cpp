@@ -78,8 +78,8 @@ DemoGame::~DemoGame()
 	delete triMat;
 	delete primitiveBatch;
 	delete basicEffect;
-	delete toQuat;
-	delete fromQuat;
+	//delete toQuat;
+	//delete fromQuat;
 }
 
 #pragma endregion
@@ -153,8 +153,10 @@ bool DemoGame::Init()
 	splinePts = spline.sseMakeSpline(ctrlPts, 100);
 
 	//The start and end Quaternion for slerping
-	fromQuat = new XMVECTOR(cube->rotation);
-	toQuat = new XMVECTOR(XMQuaternionRotationRollPitchYaw(1, -3.14159265f, 0));
+	fromQuat = new XMFLOAT4(cube->rotation);
+	XMFLOAT4 temp;
+	XMStoreFloat4(&temp,XMQuaternionRotationRollPitchYaw(1, -3.14159265f, 0));
+	toQuat = &temp;
 	 
 	elapsedTime = 0;
 
@@ -301,7 +303,7 @@ void DemoGame::UpdateScene(float dt)
 	splineIndex += dt/2 * dir;
 
 	cube->translation = spline.sseGetPointOnSpline(ctrlPts, splineIndex);
-	cube->rotation = SlerpSSE(fromQuat, toQuat, elapsedTime, &cube->rotation);
+	//cube->rotation = Slerp(fromQuat, toQuat, elapsedTime, &cube->rotation);
 	cube->Update(deviceContext);
 	/*
 	for each (GameEntity* cube in cubes)
@@ -313,37 +315,29 @@ void DemoGame::UpdateScene(float dt)
 	//splinePts = spline.sseMakeSpline(ctrlPts, 100);
 }
 
-XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
+XMFLOAT4 DemoGame::Slerp(XMFLOAT4* nQuatFrom, XMFLOAT4* nQuatTo, float time, XMFLOAT4* nResQuat)
 {
-	XMFLOAT4* quatFrom = new XMFLOAT4();
-	XMFLOAT4* quatTo = new XMFLOAT4();
-	XMFLOAT4* resQuat = new XMFLOAT4();
-
-	//Convert XMVECTOR parameters into floats that can be accessed and manipulated
-	XMStoreFloat4(quatFrom, *nQuatFrom);
-	XMStoreFloat4(quatTo, *nQuatTo);
-	XMStoreFloat4(resQuat, *nResQuat);
 
 	float to1[4];
 	float omega, cosom, sinom, scale0, scale1;
 	// calc cosine
-	cosom = quatFrom->x * quatTo->x + quatFrom->y * quatTo->y + quatFrom->z * quatTo->z
-		+ quatFrom->w * quatTo->w;
+	cosom = nQuatFrom->x * nQuatTo->x + nQuatFrom->y * nQuatTo->y + nQuatFrom->z * nQuatTo->z
+		+ nQuatFrom->w * nQuatTo->w;
 	// adjust signs (if necessary)
 	if (cosom <0.0)
 	{
 		cosom = -cosom;
-		to1[0] = -quatTo->x;
-		to1[1] = -quatTo->y;
-		to1[2] = -quatTo->z;
-		to1[3] = -quatTo->w;
+		to1[0] = -nQuatTo->x;
+		to1[1] = -nQuatTo->y;
+		to1[2] = -nQuatTo->z;
+		to1[3] = -nQuatTo->w;
 	}
 	else
 	{
-		to1[0] = quatTo->x;
-		to1[1] = quatTo->y;
-		to1[2] = quatTo->z;
-		to1[3] = quatTo->w;
+		to1[0] = nQuatTo->x;
+		to1[1] = nQuatTo->y;
+		to1[2] = nQuatTo->z;
+		to1[3] = nQuatTo->w;
 	}
 
 	// calculate coefficients
@@ -363,22 +357,16 @@ XMVECTOR DemoGame::Slerp(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMV
 		scale1 = time;
 	}
 	// calculate final values
-	resQuat->x = scale0 * quatFrom->x + scale1 * to1[0];
-	resQuat->y = scale0 * quatFrom->y + scale1 * to1[1];
-	resQuat->z = scale0 * quatFrom->z + scale1 * to1[2];
-	resQuat->w = scale0 * quatFrom->w + scale1 * to1[3];
+	nResQuat->x = scale0 * nQuatFrom->x + scale1 * to1[0];
+	nResQuat->y = scale0 * nQuatFrom->y + scale1 * to1[1];
+	nResQuat->z = scale0 * nQuatFrom->z + scale1 * to1[2];
+	nResQuat->w = scale0 * nQuatFrom->w + scale1 * to1[3];
 
-	//Put floats back into a XMVECTOR for return type
-	nResQuat = &XMLoadFloat4(resQuat);
-
-	//Clean up
-	delete(quatFrom);
-	delete(quatTo);
-	delete(resQuat);
 	return *nResQuat;
 }
 
-XMVECTOR DemoGame::SlerpSSE(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, XMVECTOR* nResQuat)
+/*
+XMFLOAT4 DemoGame::SlerpSSE(XMFLOAT4* nQuatFrom, XMFLOAT4* nQuatTo, float time, XMFLOAT4* nResQuat)
 {
 	//pointers to store values recevied from parameters
 	XMFLOAT4* quatFrom = new XMFLOAT4();
@@ -482,6 +470,7 @@ XMVECTOR DemoGame::SlerpSSE(XMVECTOR* nQuatFrom, XMVECTOR* nQuatTo, float time, 
 	//return
 	return *nResQuat;
 }
+*/
 
 // Clear the screen, redraw everything, present
 void DemoGame::DrawScene()
