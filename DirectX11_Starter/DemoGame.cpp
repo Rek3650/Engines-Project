@@ -230,7 +230,11 @@ void DemoGame::LoadShadersAndInputLayout()
 
 	// Load Vertex Shader --------------------------------------
 	ID3DBlob* vsBlob;
+#if defined(DEBUG) | defined(_DEBUG)
 	D3DReadFileToBlob(L"VertexShader.cso", &vsBlob);
+#else
+	D3DReadFileToBlob(L"../Release/VertexShader.cso", &vsBlob);
+#endif
 
 	// Create the shader on the device
 	HR(device->CreateVertexShader(
@@ -252,7 +256,11 @@ void DemoGame::LoadShadersAndInputLayout()
 
 	// Load Pixel Shader ---------------------------------------
 	ID3DBlob* psBlob;
+#if defined(DEBUG) | defined(_DEBUG)
 	D3DReadFileToBlob(L"PixelShader.cso", &psBlob);
+#else
+	D3DReadFileToBlob(L"../Release/PixelShader.cso", &psBlob);
+#endif
 
 	// Create the shader on the device
 	HR(device->CreatePixelShader(
