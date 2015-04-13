@@ -13,6 +13,7 @@
 #include <vector>
 #include "Camera.h"
 #include "InputManager.h"
+#include "LineRenderer.h"
 
 // Include run-time memory checking in debug builds
 #if defined(DEBUG) || defined(_DEBUG)
@@ -35,9 +36,6 @@ public:
 	void OnResize();
 	void UpdateScene(float dt);
 	void DrawScene(); 
-
-	// for holding all of the debug line draws
-	void DrawDebugLines();
 
 private:
 	// Initialization for our "game" demo
@@ -64,6 +62,7 @@ private:
 	Material* triMat;
 
 	// for debug lines
+	LineRenderer* lineRenderer;
 	BasicEffect* basicEffect;
 	PrimitiveBatch<VertexPositionColor>* primitiveBatch;
 

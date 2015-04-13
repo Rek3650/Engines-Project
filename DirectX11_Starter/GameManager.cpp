@@ -74,6 +74,7 @@ GameManager::~GameManager()
 	delete primitiveBatch;
 	delete basicEffect;
 	delete camera;
+	delete lineRenderer;
 }
 
 #pragma endregion
@@ -99,8 +100,7 @@ bool GameManager::Init()
 	LoadShadersAndInputLayout();
 
 	// for drawing lines
-	primitiveBatch = new PrimitiveBatch<VertexPositionColor>(deviceContext);
-	basicEffect = new BasicEffect(device);
+	lineRenderer = new LineRenderer(device, pixelShader, vertexShader, camera);
 
 	// initialize the stuff for the spline
 	splineIndex = 0;
@@ -128,7 +128,13 @@ bool GameManager::Init()
 
 	// make the spline
 	splinePts = spline.sseMakeSpline(ctrlPts, 100);
-	 
+	
+	// add lines to draw
+	for(int i = 1; i < splinePts.size(); i++)
+	{
+		lineRenderer->addLine(splinePts[i-1], splinePts[i], XMFLOAT4(1, 1, 1, 1));
+	}
+
 	elapsedTime = 0;
 
 	return true;
@@ -255,6 +261,9 @@ void GameManager::UpdateScene(float dt)
 	cube->translation = spline.sseGetPointOnSpline(ctrlPts, splineIndex);
 	
 	cube->Update(deviceContext);
+
+
+	lineRenderer->Update(deviceContext);
 }
 
 // Clear the screen, redraw everything, present
@@ -276,44 +285,12 @@ void GameManager::DrawScene()
 
 	//Draw the cube
 	cube->Draw(deviceContext);
-	
-	// Draw the spline
-	// it doesn't match the actual path of the cube because I'm still working on the debug lines
-	// right now they are very wonky and the lines are in a different world space than the rest of the objects
-	//DrawDebugLines();
+
+	// Draw debug lines
+	lineRenderer->Draw(deviceContext);
 
 	// Present the buffer
 	HR(swapChain->Present(0, 0));
 }
 
-#pragma endregion
-
-#pragma region Draw Debug Lines
-// i put the line drawing in this function to try and keep the code in DrawScene cleaner
-// this seems to cause errors though so only use for testing
-void GameManager::DrawDebugLines()
-{
-	basicEffect->Apply(deviceContext);
-	
-	primitiveBatch->Begin();
-	////////////////////////////////////
-
-	//primitiveBatch->DrawLine(VertexPositionColor(cube->translation, XMFLOAT4()), 
-	//		VertexPositionColor(XMFLOAT3(0, 0, 0), XMFLOAT4()));
-
-	for(unsigned int i = 1; i < ctrlPts.size(); i++)
-	{
-		primitiveBatch->DrawLine(VertexPositionColor(ctrlPts[i-1], XMFLOAT4()), 
-			VertexPositionColor(ctrlPts[i], XMFLOAT4()));
-	}
-
-	for(unsigned int i = 1; i < splinePts.size(); i++)
-	{
-		primitiveBatch->DrawLine(VertexPositionColor(splinePts[i-1], XMFLOAT4()), 
-			VertexPositionColor(splinePts[i], XMFLOAT4()));
-	}
-
-	////////////////////////////////////
-	primitiveBatch->End();
-}
 #pragma endregion
