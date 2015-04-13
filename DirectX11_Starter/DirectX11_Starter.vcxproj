@@ -71,23 +71,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DemoGame.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="DXGame.cpp" />
     <ClCompile Include="GameEntity.cpp" />
     <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Primitives.cpp" />
     <ClCompile Include="Spline.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DemoGame.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="DXGame.h" />
     <ClInclude Include="GameEntity.h" />
     <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="InputManager.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Primitives.h" />
     <ClInclude Include="Spline.h" />
   </ItemGroup>
   <ItemGroup>

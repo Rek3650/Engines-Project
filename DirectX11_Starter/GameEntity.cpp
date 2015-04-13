@@ -2,9 +2,14 @@
 
 using namespace DirectX;
 
-GameEntity::GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numIndices, ID3D11Device* device, Material* mat)
+GameEntity::GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numIndices, 
+					   ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
+					   Material* mat, Camera* camera)
 {
+	this->pixelShader = pixelShader;
+	this->vertexShader = vertexShader;
 	this->mat = mat;
+	this->camera = camera;
 
 	// set up the transformations and mesh
 	this->numIndices = numIndices;
@@ -13,23 +18,24 @@ GameEntity::GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numInd
 	translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mesh = new Mesh(vertices, numVerts, indices, numIndices, device);
 
-	// Set up view matrix (camera)
-	// In an actual game, update this when the camera moves (so every frame)
-	XMVECTOR position	= XMVectorSet(0, 0, -5, 0);
-	XMVECTOR target		= XMVectorSet(0, 0, 0, 0);
+	// Set up a dummy view matrix
+	// will be updated every frame by the camera
+	XMVECTOR position	= XMVectorSet(0, 0, 0, 0);
+	XMVECTOR target		= XMVectorSet(0, 0, 1, 0);
 	XMVECTOR up			= XMVectorSet(0, 1, 0, 0);
 	XMMATRIX V			= XMMatrixLookAtLH(position, target, up);
 	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(V));
 
 	// Set up world matrix
-	// In an actual game, update this when the object moves (so every frame)
+	// update this every frame when the object moves
 	XMMATRIX W = XMMatrixIdentity();
 	XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(W));
 
-	// set up projection matrix with hard-coded value for now, needs to be changed
+	// set up a dummy projection matrix
+	// will be updated by the camera
 	XMMATRIX P = XMMatrixPerspectiveFovLH(
 		0.25f * 3.1415926535f,
-		((float)800/600),
+		((float)1600/900),
 		0.1f,
 		100.0f);
 	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P));
@@ -58,8 +64,16 @@ void GameEntity::Update(ID3D11DeviceContext* deviceContext)
 {
 	// Update local constant buffer data
 	cBufferData.world		= worldMatrix;
-	cBufferData.view		= viewMatrix;
-	cBufferData.projection	= projectionMatrix;
+	if(camera != NULL)
+	{
+		cBufferData.view		= camera->GetView();
+		cBufferData.projection	= camera->GetProjection();
+	}
+	else
+	{
+		cBufferData.view		= viewMatrix;
+		cBufferData.projection	= projectionMatrix;
+	}
 
 	// play with the scale of the shape
 	XMMATRIX s = XMMatrixScaling(scale.x, scale.y, scale.z);
@@ -80,8 +94,7 @@ void GameEntity::Update(ID3D11DeviceContext* deviceContext)
 }
 
 // draws the game entity to the screen
-void GameEntity::Draw(ID3D11DeviceContext* deviceContext, ID3D11PixelShader* pixelShader, 
-		ID3D11VertexShader* vertexShader)
+void GameEntity::Draw(ID3D11DeviceContext* deviceContext)
 {
 	// Set buffers in the input assembler
 	UINT stride = sizeof(Vertex);
@@ -99,8 +112,11 @@ void GameEntity::Draw(ID3D11DeviceContext* deviceContext, ID3D11PixelShader* pix
 	deviceContext->PSSetShader(pixelShader, NULL, 0);
 	
 	// set up the texture
-	deviceContext->PSSetShaderResources(0, 1, &(mat->SRV));
-	deviceContext->PSSetSamplers(0, 1, &(mat->sampState));
+	if(mat != NULL)
+	{
+		deviceContext->PSSetShaderResources(0, 1, &(mat->SRV));
+		deviceContext->PSSetSamplers(0, 1, &(mat->sampState));
+	}
 
 	// Finally do the actual drawing
 	deviceContext->DrawIndexed(

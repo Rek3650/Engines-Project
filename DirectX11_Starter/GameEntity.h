@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include "Mesh.h"
 #include "Material.h"
+#include "Camera.h"
 
 // Struct to match vertex shader's constant buffer
 // You update one of these locally, then push it to the corresponding
@@ -30,11 +31,17 @@ public:
 	DirectX::XMFLOAT4 rotation;
 	DirectX::XMFLOAT3 translation;
 	Material* mat;
+	ID3D11PixelShader* pixelShader; 
+	ID3D11VertexShader* vertexShader;
+	Camera* camera;
 
-	GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numIndices, ID3D11Device* device, Material* mat);
+	GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numIndices, 
+		ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
+		Material* mat=NULL, Camera* camera=NULL);
+
 	~GameEntity(void);
 
-	void Draw(ID3D11DeviceContext* deviceContext, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader);
+	void Draw(ID3D11DeviceContext* deviceContext);
 	void Update(ID3D11DeviceContext* deviceContext);
 };
 
