@@ -89,7 +89,8 @@ bool GameManager::Init()
 
 	// make a camera/input handler
 	camera = new Camera(AspectRatio());
-	input = new InputManager();
+	input = new InputManager(hAppInst, hMainWnd, windowWidth, windowHeight);
+	input->init();
 
 	// create materials
 	triMat = new Material(device, deviceContext, L"../images/epicTriforce.jpg");
@@ -226,6 +227,9 @@ void GameManager::OnResize()
 
 	// Update our projection matrix since the window size changed
 	if(camera != NULL) camera->UpdateProjection(AspectRatio());
+
+	// update the window size for the mouse input
+	if(input != NULL) input->onResize(windowWidth, windowHeight);
 }
 #pragma endregion
 
@@ -233,6 +237,8 @@ void GameManager::OnResize()
 void GameManager::UpdateScene(float dt)
 {
 	elapsedTime += dt;
+	input->update();
+	camera->Update(dt);
 
 	if(splineIndex > 1)
 	{

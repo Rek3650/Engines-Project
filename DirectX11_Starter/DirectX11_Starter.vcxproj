@@ -78,10 +78,12 @@
     <ClCompile Include="GameEntity.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Primitives.cpp" />
     <ClCompile Include="Spline.cpp" />
+    <ClCompile Include="XboxController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -91,10 +93,12 @@
     <ClInclude Include="GameEntity.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="Spline.h" />
+    <ClInclude Include="XboxController.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\PixelShader.hlsl">
