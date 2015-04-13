@@ -14,6 +14,7 @@
 #include "Camera.h"
 #include "InputManager.h"
 #include "LineRenderer.h"
+#include "Player.h"
 
 // Include run-time memory checking in debug builds
 #if defined(DEBUG) || defined(_DEBUG)
@@ -43,7 +44,7 @@ private:
 	void CreateGeometryBuffers();
 
 private:
-	// Our basic shaders for this example
+	// our shaders
 	ID3D11PixelShader* pixelShader;
 	ID3D11VertexShader* vertexShader;
 
@@ -53,6 +54,7 @@ private:
 	// stuff for the user
 	Camera* camera;
 	InputManager* input;
+	Player* player;
 
 	// test Game Entities
 	std::vector<GameEntity*> cubes;
@@ -63,8 +65,6 @@ private:
 
 	// for debug lines
 	LineRenderer* lineRenderer;
-	BasicEffect* basicEffect;
-	PrimitiveBatch<VertexPositionColor>* primitiveBatch;
 
 	// for creating a spline
 	std::vector<XMFLOAT3> ctrlPts;

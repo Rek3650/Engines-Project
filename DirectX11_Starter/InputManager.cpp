@@ -78,6 +78,83 @@ bool InputManager::onKeyUp(int keycode)
 	return false;
 }
 
+bool InputManager::getMouse(int mouseButton)
+{
+	BYTE* mouseState = keyboard->getMouseState();
+	switch(mouseButton)
+	{
+		case 0:
+			if(mouseState[0]) return true;
+			break;
+		case 1:
+			if(mouseState[1]) return true;
+			break;
+		case 2:
+			if(mouseState[2]) return true;
+			break;
+		default:
+			return false;
+			break;
+	}
+	return false;
+}
+
+bool InputManager::onMouseDown(int mouseButton)
+{
+	BYTE* mouseState = keyboard->getMouseState();
+	BYTE* lastMouseState = keyboard->getLastMouseState();
+	switch(mouseButton)
+	{
+		case 0:
+			if(mouseState[0] && !(lastMouseState[0])) return true;
+			break;
+		case 1:
+			if(mouseState[1] && !(lastMouseState[1])) return true;
+			break;
+		case 2:
+			if(mouseState[2] && !(lastMouseState[2])) return true;
+			break;
+		default:
+			return false;
+			break;
+	}
+	return false;
+}
+
+bool InputManager::onMouseUp(int mouseButton)
+{
+	BYTE* mouseState = keyboard->getMouseState();
+	BYTE* lastMouseState = keyboard->getLastMouseState();
+	switch(mouseButton)
+	{
+		case 0:
+			if(!(mouseState[0]) && lastMouseState[0]) return true;
+			break;
+		case 1:
+			if(!(mouseState[1]) && lastMouseState[1]) return true;
+			break;
+		case 2:
+			if(!(mouseState[2]) && lastMouseState[2]) return true;
+			break;
+		default:
+			return false;
+			break;
+	}
+	return false;
+}
+
+XMFLOAT2 InputManager::getMousePos()
+{
+	int x, y = 0;
+	keyboard->GetMouseLocation(x, y);
+	return XMFLOAT2(x, y);
+}
+
+int InputManager::getMouseWheel()
+{
+	return keyboard->getMouseWheel();
+}
+
 #pragma endregion
 
 // handles controller input

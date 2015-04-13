@@ -82,6 +82,7 @@
     <ClCompile Include="LineRenderer.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Primitives.cpp" />
     <ClCompile Include="Spline.cpp" />
     <ClCompile Include="XboxController.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="LineRenderer.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="Spline.h" />
     <ClInclude Include="XboxController.h" />

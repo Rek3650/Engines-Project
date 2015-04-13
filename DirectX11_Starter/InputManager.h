@@ -10,11 +10,14 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.re
 #include <dinput.h>
 #include "Keyboard.h"
 #include "XboxController.h"
+#include <DirectXMath.h>
 
 //Bit check & two state.
 //Hehe... bitCh... 
 #define bitChkTwoState(state, lastState, flag) ((state & flag) == flag) && !((lastState & flag) == flag)
 #define bitChk(state, flag) ((state & flag) == flag)
+
+using namespace DirectX;
 
 class InputManager
 {
@@ -28,6 +31,12 @@ public:
 	
 	bool onKeyDown(int keyCode); // was key pressed THIS FRAME.
 	bool onKeyUp(int keyCode); // was key released THIS FRAME.
+
+	bool getMouse(int mouseButton); // is mouse button down
+	bool onMouseDown(int mouseButton); // was mouse button pressed this frame
+	bool onMouseUp(int mouseButton); // was mouse button released this frame
+	XMFLOAT2 getMousePos();
+	int getMouseWheel();
 
 	//duh
 	bool isControllerConnected(int controllerNum);
@@ -61,6 +70,8 @@ private:
 	//pointers to the keyboard and controller objects.
 	bool* lastKeys;
 	bool* keys;
+	BYTE* mouse;
+	BYTE* lastMouse;
 	Keyboard* keyboard;
 	XboxController** xboxC;
 	XINPUT_STATE** xboxCState;

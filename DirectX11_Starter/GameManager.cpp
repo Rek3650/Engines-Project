@@ -71,10 +71,9 @@ GameManager::~GameManager()
 
 	delete cube;
 	delete triMat;
-	delete primitiveBatch;
-	delete basicEffect;
 	delete camera;
 	delete lineRenderer;
+	delete player;
 }
 
 #pragma endregion
@@ -92,6 +91,7 @@ bool GameManager::Init()
 	camera = new Camera(AspectRatio());
 	input = new InputManager(hAppInst, hMainWnd, windowWidth, windowHeight);
 	input->init();
+	player = new Player(camera, input);
 
 	// create materials
 	triMat = new Material(device, deviceContext, L"../images/epicTriforce.jpg");
@@ -262,6 +262,7 @@ void GameManager::UpdateScene(float dt)
 	
 	cube->Update(deviceContext);
 
+	player->Update(dt);
 
 	lineRenderer->Update(deviceContext);
 }

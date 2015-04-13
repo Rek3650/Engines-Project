@@ -22,6 +22,9 @@ public:
 
 	bool* getKeyboardState(){ return m_keyboardState;}
 	bool* getLastKeyboardState(){ return m_lastKeyboardState;}
+	BYTE* getMouseState();
+	BYTE* getLastMouseState();
+	int getMouseWheel();
 
 	int m_screenWidth, m_screenHeight;
 
@@ -39,6 +42,7 @@ private:
 	bool m_keyboardState[256];
 	bool m_lastKeyboardState[256];
 	DIMOUSESTATE m_mouseState;
+	DIMOUSESTATE m_lastMouseState;
 
 	//mouse state
 	int m_mouseX, m_mouseY;

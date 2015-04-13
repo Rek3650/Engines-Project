@@ -133,6 +133,7 @@ bool Keyboard::Frame()
 
 	for (int i = 0; i < 256; i++)
 		m_lastKeyboardState[i] = m_keyboardState[i];
+	m_lastMouseState = m_mouseState;
 
 	// Read the current state of the keyboard.
 	result = ReadKeyboard();
@@ -198,6 +199,21 @@ bool Keyboard::ReadMouse()
 	}
 
 	return true;
+}
+
+BYTE* Keyboard::getMouseState()
+{
+	return m_mouseState.rgbButtons;
+}
+
+BYTE* Keyboard::getLastMouseState()
+{
+	return m_lastMouseState.rgbButtons;
+}
+
+int Keyboard::getMouseWheel()
+{
+	return m_mouseState.lZ;
 }
 
 void Keyboard::ProcessInput()
