@@ -18,6 +18,8 @@ bool Keyboard::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int s
 {
 	HRESULT result;
 
+	window = hwnd;
+
 	// Store the screen size which will be used for positioning the mouse cursor.
 	m_screenWidth = screenWidth;
 	m_screenHeight = screenHeight;
@@ -218,9 +220,12 @@ int Keyboard::getMouseWheel()
 
 void Keyboard::ProcessInput()
 {
+	RECT rect;
+	GetWindowRect(window, &rect);
+
 	// Update the location of the mouse cursor based on the change of the mouse location during the frame.
-	m_mouseX += m_mouseState.lX;
-	m_mouseY += m_mouseState.lY;
+	m_mouseX = m_mouseState.lX;
+	m_mouseY = m_mouseState.lY;
 
 	// Ensure the mouse location doesn't exceed the screen width or height.
 	if(m_mouseX < 0)  { m_mouseX = 0; }
