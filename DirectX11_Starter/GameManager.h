@@ -59,6 +59,10 @@ private:
 	// test Game Entities
 	std::vector<GameEntity*> cubes;
 	GameEntity* cube;
+	GameEntity* cube1;
+	GameEntity* cube2;
+	GameEntity* cube3;
+	GameEntity* cube4;
 
 	// texture stuff
 	Material* triMat;

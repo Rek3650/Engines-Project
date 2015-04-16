@@ -77,6 +77,7 @@
     <ClCompile Include="DXGame.cpp" />
     <ClCompile Include="GameEntity.cpp" />
     <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="GeometryNode.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="LineRenderer.cpp" />
@@ -84,6 +85,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Primitives.cpp" />
+    <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="Spline.cpp" />
     <ClCompile Include="XboxController.cpp" />
   </ItemGroup>
@@ -94,6 +96,7 @@
     <ClInclude Include="DXGame.h" />
     <ClInclude Include="GameEntity.h" />
     <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="GeometryNode.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="LineRenderer.h" />
@@ -101,6 +104,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Primitives.h" />
+    <ClInclude Include="SceneNode.h" />
     <ClInclude Include="Spline.h" />
     <ClInclude Include="XboxController.h" />
   </ItemGroup>

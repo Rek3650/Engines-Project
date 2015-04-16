@@ -13,7 +13,8 @@ Primitives::~Primitives(void)
 
 // sets up the vertices and indices for a cube
 // returns a newly allocated pointer to a GameEntity
-GameEntity* Primitives::makeCube(ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, XMFLOAT4 color)
+GameEntity* Primitives::makeCube(ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
+		Material* mat, Camera* camera, XMFLOAT4 color)
 {
 	Vertex verts[] =
 	{
@@ -42,5 +43,5 @@ GameEntity* Primitives::makeCube(ID3D11PixelShader* pixelShader, ID3D11VertexSha
 		3, 2, 7
 	};
 
-	return(new GameEntity(verts, 8, inds, 36, device, pixelShader, vertexShader));
+	return(new GameEntity(verts, 8, inds, 36, device, pixelShader, vertexShader, mat, camera));
 }

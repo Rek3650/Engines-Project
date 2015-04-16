@@ -68,8 +68,12 @@ GameManager::~GameManager()
 	ReleaseMacro(vertexShader);
 	ReleaseMacro(pixelShader);
 	ReleaseMacro(inputLayout);
-
+	
 	delete cube;
+	delete cube1;
+	delete cube2;
+	delete cube3;
+	delete cube4;
 	delete triMat;
 	delete camera;
 	delete lineRenderer;
@@ -214,11 +218,27 @@ void GameManager::CreateGeometryBuffers()
 
 	Primitives primitives(device);
 	//Create a cube
-	cube = primitives.makeCube(pixelShader, vertexShader);
-	cube->mat = triMat;
-	cube->camera = camera;
-	cube->scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
-	cube->translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	cube = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	cube->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+	cube->Translation(XMFLOAT3(0.0f, 0.0f, 10.0f));
+	
+	cube1 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	cube1->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+	cube1->Translation(XMFLOAT3(1.0f, 0.0f, 10.0f));
+	cube2 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	cube2->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+	cube2->Translation(XMFLOAT3(-1.0f, 0.0f, 10.0f));
+	cube3 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	cube3->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+	cube3->Translation(XMFLOAT3(0.0f, 1.0f, 10.0f));
+	cube4 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	cube4->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+	cube4->Translation(XMFLOAT3(0.0f, -1.0f, 10.0f));
+	
+	cube->AddChild(cube1->geometry);
+	cube->AddChild(cube2->geometry);
+	cube->AddChild(cube3->geometry);
+	cube->AddChild(cube4->geometry);
 }
 
 #pragma endregion
@@ -258,10 +278,9 @@ void GameManager::UpdateScene(float dt)
 	}
 	splineIndex += dt/2 * dir;
 
-	cube->translation = spline.sseGetPointOnSpline(ctrlPts, splineIndex);
+	cube->Translation(spline.sseGetPointOnSpline(ctrlPts, splineIndex));
 	
 	cube->Update(deviceContext);
-
 	player->Update(dt);
 
 	lineRenderer->Update(deviceContext);
@@ -283,6 +302,8 @@ void GameManager::DrawScene()
 	// Set up the input assembler
 	deviceContext->IASetInputLayout(inputLayout);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	std::cout << "Frame" << std::endl;
 
 	//Draw the cube
 	cube->Draw(deviceContext);
