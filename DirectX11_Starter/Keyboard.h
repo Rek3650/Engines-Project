@@ -37,6 +37,7 @@ private:
 	IDirectInput8* m_directInput;
 	IDirectInputDevice8* m_keyboard;
 	IDirectInputDevice8* m_mouse;
+	HWND window;
 
 	//keyboard state
 	bool m_keyboardState[256];

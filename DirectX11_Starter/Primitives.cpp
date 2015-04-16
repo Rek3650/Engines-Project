@@ -29,18 +29,18 @@ GameEntity* Primitives::makeCube(ID3D11PixelShader* pixelShader, ID3D11VertexSha
 	};
 	UINT inds[] =
 	{
-		1, 2, 3,
-		0, 1, 3,
-		5, 6, 2,
-		1, 5, 2,
-		4, 7, 6,
-		5, 4, 6,
-		0, 3, 7,
-		4, 0, 7,
-		5, 1, 0,
-		4, 5, 0,
-		2, 6, 7,
-		3, 2, 7
+		3, 2, 1,
+		3, 1, 0,
+		2, 6, 5,
+		2, 5, 1,
+		6, 7, 4,
+		6, 4, 5,
+		7, 3, 0,
+		7, 0, 4,
+		0, 1, 5,
+		0, 5, 4,
+		7, 6, 2,
+		7, 2, 3
 	};
 
 	return(new GameEntity(verts, 8, inds, 36, device, pixelShader, vertexShader, mat, camera));

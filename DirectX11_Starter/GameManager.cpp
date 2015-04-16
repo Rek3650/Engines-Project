@@ -303,8 +303,6 @@ void GameManager::DrawScene()
 	deviceContext->IASetInputLayout(inputLayout);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	std::cout << "Frame" << std::endl;
-
 	//Draw the cube
 	cube->Draw(deviceContext);
 
