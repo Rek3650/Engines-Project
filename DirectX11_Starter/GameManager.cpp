@@ -21,6 +21,8 @@
 //
 // ----------------------------------------------------------------------------
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <Windows.h>
 #include <d3dcompiler.h>
 #include "GameManager.h"
@@ -78,6 +80,7 @@ GameManager::~GameManager()
 	delete camera;
 	delete lineRenderer;
 	delete player;
+	delete network;
 }
 
 #pragma endregion
@@ -140,6 +143,8 @@ bool GameManager::Init()
 	}
 
 	elapsedTime = 0;
+
+	network = new NetworkManager(hMainWnd);
 
 	return true;
 }
@@ -284,6 +289,8 @@ void GameManager::UpdateScene(float dt)
 	player->Update(dt);
 
 	lineRenderer->Update(deviceContext);
+
+	network->Update();
 }
 
 // Clear the screen, redraw everything, present

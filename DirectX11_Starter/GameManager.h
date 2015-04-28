@@ -15,6 +15,7 @@
 #include "InputManager.h"
 #include "LineRenderer.h"
 #include "Player.h"
+#include "NetworkManager.h"
 
 // Include run-time memory checking in debug builds
 #if defined(DEBUG) || defined(_DEBUG)
@@ -66,6 +67,9 @@ private:
 
 	// texture stuff
 	Material* triMat;
+	
+	// Networking
+	NetworkManager* network;
 
 	// for debug lines
 	LineRenderer* lineRenderer;

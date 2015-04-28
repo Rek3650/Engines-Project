@@ -199,7 +199,7 @@ bool Keyboard::ReadMouse()
 			return false;
 		}
 	}
-
+	
 	return true;
 }
 
