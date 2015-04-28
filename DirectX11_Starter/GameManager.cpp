@@ -29,8 +29,11 @@
 #include <xmmintrin.h>
 #include <iostream>
 #include "Primitives.h"
+#include "easylogging++.h"
 
 using namespace DirectX;
+
+INITIALIZE_EASYLOGGINGPP
 
 #pragma region Win32 Entry Point (WinMain)
 
@@ -62,6 +65,9 @@ GameManager::GameManager(HINSTANCE hInstance) : DXGame(hInstance)
 	windowCaption = L"Awesome Engine";
 	windowWidth = 800;
 	windowHeight = 600;
+
+	//initializes logging with default settings. must only be run once
+	LOG(INFO) << "My first info log using default logger";
 }
 
 GameManager::~GameManager()

@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="easylogging++.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="DXGame.h" />
