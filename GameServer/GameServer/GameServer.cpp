@@ -127,15 +127,16 @@ int main(void)
 
     // Receive until the peer shuts down the connection
     do {
+		// get the game loop messages from the clients
 		for(int i = 0; i < numPlayers; i++)
 		{
-			// get a message from each client
+			// get the clients' transforms
 			iResult = recv(ClientSocket[i], recvbuf, recvbuflen, 0);
 			if (iResult > 0) 
 			{
 				printf("Bytes received: %d\n", iResult);
 
-				// send the message to the other clients on the server
+				// send the transfrms to the other clients on the server
 				for( int j = 0; j < numPlayers; j++)
 				{
 					if(i != j)

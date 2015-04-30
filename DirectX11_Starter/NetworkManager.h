@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
+#include <vector>
+
+#include "GameEntity.h"
 
 // Need to link with Ws2_32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -21,6 +24,17 @@
 
 #define WM_ONSOCKET WM_USER+1
 
+struct Transform
+{
+	float posX;
+	float posY;
+	float posZ;
+	float rotX;
+	float rotY;
+	float rotZ;
+	float rotW;
+};
+
 class NetworkManager
 {
 public:
@@ -29,9 +43,15 @@ public:
 
 	void Update();
 
+	void UpdateTransformBuffer(XMFLOAT3 pos, XMFLOAT4 rot);
+	
+	std::vector<GameEntity*> networkedObjects;
+
 private:
 	char ipAddress[15];
 	int numPlayers;
+
+	Transform transBuf;
 
 	WSADATA wsaData;
     SOCKET ConnectSocket;

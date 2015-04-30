@@ -186,7 +186,7 @@ bool Keyboard::ReadMouse()
 
 
 	// Read the mouse device.
-	result = m_mouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&m_mouseState);
+	/*result = m_mouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&m_mouseState);
 	if(FAILED(result))
 	{
 		// If the mouse lost focus or was not acquired then try to get control back.
@@ -198,7 +198,7 @@ bool Keyboard::ReadMouse()
 		{
 			return false;
 		}
-	}
+	}*/
 	
 	return true;
 }

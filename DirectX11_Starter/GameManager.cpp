@@ -104,7 +104,6 @@ bool GameManager::Init()
 	camera = new Camera(AspectRatio());
 	input = new InputManager(hAppInst, hMainWnd, windowWidth, windowHeight);
 	input->init();
-	player = new Player(camera, input);
 
 	// create materials
 	triMat = new Material(device, deviceContext, L"../images/epicTriforce.jpg");
@@ -150,7 +149,10 @@ bool GameManager::Init()
 
 	elapsedTime = 0;
 
+	player = new Player(camera, input, cube);
+
 	network = new NetworkManager(hMainWnd);
+	network->networkedObjects.push_back(cube1);
 
 	return true;
 }
@@ -246,10 +248,10 @@ void GameManager::CreateGeometryBuffers()
 	cube4->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube4->Translation(XMFLOAT3(0.0f, -1.0f, 10.0f));
 	
-	cube->AddChild(cube1->geometry);
-	cube->AddChild(cube2->geometry);
-	cube->AddChild(cube3->geometry);
-	cube->AddChild(cube4->geometry);
+	//cube->AddChild(cube1->geometry);
+	//cube->AddChild(cube2->geometry);
+	//cube->AddChild(cube3->geometry);
+	//cube->AddChild(cube4->geometry);
 }
 
 #pragma endregion
@@ -289,14 +291,21 @@ void GameManager::UpdateScene(float dt)
 	}
 	splineIndex += dt/2 * dir;
 
-	cube->Translation(spline.sseGetPointOnSpline(ctrlPts, splineIndex));
+	//cube->Translation(spline.sseGetPointOnSpline(ctrlPts, splineIndex));
 	
-	cube->Update(deviceContext);
 	player->Update(dt);
-
-	lineRenderer->Update(deviceContext);
+	cube->Update(deviceContext);
+	network->UpdateTransformBuffer(player->getPosition(), player->getRotation());
 
 	network->Update();
+
+	// update the networked objects
+	for(int i = 0; i < network->networkedObjects.size(); i++)
+	{
+		network->networkedObjects[i]->Update(deviceContext);
+	}
+
+	lineRenderer->Update(deviceContext);
 }
 
 // Clear the screen, redraw everything, present
@@ -318,6 +327,12 @@ void GameManager::DrawScene()
 
 	//Draw the cube
 	cube->Draw(deviceContext);
+
+	// draw the networked objects
+	for(int i = 0; i < network->networkedObjects.size(); i++)
+	{
+		network->networkedObjects[i]->Draw(deviceContext);
+	}
 
 	// Draw debug lines
 	lineRenderer->Draw(deviceContext);

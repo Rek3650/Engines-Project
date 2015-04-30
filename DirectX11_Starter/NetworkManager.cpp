@@ -2,6 +2,15 @@
 
 NetworkManager::NetworkManager(HWND hWnd)
 {
+	// initialize the buffers that will be sent to the server
+	transBuf.posX = 0;
+	transBuf.posY = 0;
+	transBuf.posZ = 0;
+	transBuf.rotX = 0;
+	transBuf.rotY = 0;
+	transBuf.rotZ = 0;
+	transBuf.rotW = 0;
+
 	numPlayers = 1;
 	// get the ipAddress and number of players from the config file
 	std::ifstream fileReader;
@@ -87,7 +96,9 @@ void NetworkManager::Update()
 	if(numPlayers > 0)
 	{
 		// Send information about this client to the server
-		iResult = send( ConnectSocket, sendbuf, (int)strlen(sendbuf), 0 );
+
+		// Send player's transform info
+		iResult = send( ConnectSocket, reinterpret_cast<char*>(&transBuf), sizeof(transBuf), 0 );
 		if (iResult == SOCKET_ERROR) 
 		{
 			printf("send failed with error: %d\n", WSAGetLastError());
@@ -101,6 +112,10 @@ void NetworkManager::Update()
 		for(int i = 0; i < numPlayers-1; i++)
 		{
 			iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+			Transform* newTrans = reinterpret_cast<Transform*>(recvbuf);
+			networkedObjects[i]->Translation(XMFLOAT3(newTrans->posX, newTrans->posY, newTrans->posZ));
+			networkedObjects[i]->Rotation(XMFLOAT4(newTrans->rotX, newTrans->rotY, newTrans->rotZ, newTrans->rotW));
+
 			if ( iResult > 0 )
 			{
 				printf("Bytes received: %d\n", iResult);
@@ -111,4 +126,15 @@ void NetworkManager::Update()
 				printf("recv failed with error: %d\n", WSAGetLastError());
 		}
 	}
+}
+
+void NetworkManager::UpdateTransformBuffer(XMFLOAT3 pos, XMFLOAT4 rot)
+{
+	transBuf.posX = pos.x;
+	transBuf.posY = pos.y;
+	transBuf.posZ = pos.z;
+	transBuf.rotX = rot.x;
+	transBuf.rotY = rot.y;
+	transBuf.rotZ = rot.z;
+	transBuf.rotW = rot.w;
 }
