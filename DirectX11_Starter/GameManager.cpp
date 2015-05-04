@@ -151,6 +151,9 @@ bool GameManager::Init()
 
 	player = new Player(camera, input, cube);
 
+	collision = new Collision();
+	numCollisions = 0;
+
 	network = new NetworkManager(hMainWnd);
 	network->networkedObjects.push_back(cube1);
 
@@ -297,9 +300,15 @@ void GameManager::UpdateScene(float dt)
 	cube->Update(deviceContext);
 	network->UpdateTransformBuffer(player->getPosition(), player->getRotation());
 
-	network->Update();
+	// check for collisions
+	if(collision->SAT(cube->getCollider(), cube1->getCollider()))
+	{
+		numCollisions++;
+		std::cout << "Hit: " << numCollisions << std::endl;
+	}
 
 	// update the networked objects
+	network->Update();
 	for(int i = 0; i < network->networkedObjects.size(); i++)
 	{
 		network->networkedObjects[i]->Update(deviceContext);

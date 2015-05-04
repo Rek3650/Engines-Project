@@ -5,10 +5,12 @@
 #include "Material.h"
 #include "Camera.h"
 #include "GeometryNode.h"
+#include "OBB.h"
 
 class GameEntity
 {
 private:
+	OBB* collider;
 
 public:
 	GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numIndices, 
@@ -17,6 +19,9 @@ public:
 	~GameEntity();
 
 	GeometryNode* geometry;
+
+	bool checkForCollisions;
+	OBB* getCollider(){return collider;};
 
 	void Draw(ID3D11DeviceContext* deviceContext);
 	void Update(ID3D11DeviceContext* deviceContext);

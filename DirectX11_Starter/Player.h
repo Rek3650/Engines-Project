@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "InputManager.h"
 #include "GameEntity.h"
+#include "OBB.h"
 
 using namespace DirectX;
 
@@ -17,6 +18,8 @@ public:
 
 	XMFLOAT3 getPosition();
 	XMFLOAT4 getRotation();
+
+	OBB* getCollider();
 
 private:
 	Camera* camera;

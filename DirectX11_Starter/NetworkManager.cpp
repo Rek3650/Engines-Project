@@ -101,7 +101,7 @@ void NetworkManager::Update()
 		iResult = send( ConnectSocket, reinterpret_cast<char*>(&transBuf), sizeof(transBuf), 0 );
 		if (iResult == SOCKET_ERROR) 
 		{
-			printf("send failed with error: %d\n", WSAGetLastError());
+			//printf("send failed with error: %d\n", WSAGetLastError());
 		}
 		else
 		{
@@ -118,12 +118,16 @@ void NetworkManager::Update()
 
 			if ( iResult > 0 )
 			{
-				printf("Bytes received: %d\n", iResult);
+				//printf("Bytes received: %d\n", iResult);
 			}
 			else if ( iResult == 0 )
-				printf("Connection closed\n");
+			{
+				//printf("Connection closed\n");
+			}
 			else
-				printf("recv failed with error: %d\n", WSAGetLastError());
+			{
+				//printf("recv failed with error: %d\n", WSAGetLastError());
+			}
 		}
 	}
 }

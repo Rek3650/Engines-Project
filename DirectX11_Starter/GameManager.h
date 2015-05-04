@@ -16,6 +16,7 @@
 #include "LineRenderer.h"
 #include "Player.h"
 #include "NetworkManager.h"
+#include "Collision.h"
 
 // Include run-time memory checking in debug builds
 #if defined(DEBUG) || defined(_DEBUG)
@@ -73,6 +74,10 @@ private:
 
 	// for debug lines
 	LineRenderer* lineRenderer;
+
+	// collision detection
+	Collision* collision;
+	int numCollisions;
 
 	// for creating a spline
 	std::vector<XMFLOAT3> ctrlPts;

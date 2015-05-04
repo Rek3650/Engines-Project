@@ -72,6 +72,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="DXGame.cpp" />
@@ -84,6 +85,7 @@
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="NetworkManager.cpp" />
+    <ClCompile Include="OBB.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Primitives.cpp" />
     <ClCompile Include="SceneNode.cpp" />
@@ -92,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="easylogging++.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="dxerr.h" />
@@ -105,6 +108,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="NetworkManager.h" />
+    <ClInclude Include="OBB.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="SceneNode.h" />
