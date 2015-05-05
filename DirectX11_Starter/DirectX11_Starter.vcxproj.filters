@@ -28,6 +28,15 @@
     <Filter Include="Source Files\Physics">
       <UniqueIdentifier>{d4c88b91-a434-427c-9bd2-a0513cfc37e1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\RapidXML">
+      <UniqueIdentifier>{d30a764b-951e-40f3-b6b2-773ee48240e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Loader">
+      <UniqueIdentifier>{eae825d1-8386-4d20-9a97-e306133416a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Loader">
+      <UniqueIdentifier>{b53d3be1-db1c-4c3a-b343-53a906ef7978}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXGame.cpp">
@@ -89,6 +98,9 @@
     </ClCompile>
     <ClCompile Include="Collision.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelLoader.cpp">
+      <Filter>Source Files\Loader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +166,21 @@
     </ClInclude>
     <ClInclude Include="Collision.h">
       <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml.hpp">
+      <Filter>Source Files\RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml_iterators.hpp">
+      <Filter>Source Files\RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml_print.hpp">
+      <Filter>Source Files\RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml_utils.hpp">
+      <Filter>Source Files\RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelLoader.h">
+      <Filter>Header Files\Loader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

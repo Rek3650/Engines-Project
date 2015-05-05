@@ -32,6 +32,7 @@
 #include "easylogging++.h"
 
 using namespace DirectX;
+using namespace std;
 
 INITIALIZE_EASYLOGGINGPP
 
