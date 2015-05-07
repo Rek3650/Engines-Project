@@ -39,15 +39,31 @@ xml_node<>* polyNode = geomNode->first_node()->first_node("polylist");
 
 int length = atoi(posNode->first_node()->first_attribute("count")->value());
 
-int* vertArray;
-vertArray = new int[length];
-char* token;
-char* posArray = strtok_s(posNode->first_node()->value(),"", &token);
+double* vertArray;
+vertArray = new double[length];
+char* token = NULL;
+char* things;
+things = "1 320 402 -22 1";
+
+char* posArray = NULL;
+posArray = strtok_s(posNode->first_node()->value(), " ", &token);
+
+/*
+while(posArray != NULL)
+{
+	std::cout << posArray << std::endl;
+	posArray = strtok_s(NULL, " ", &token);
+}
+*/
 
 for(int i = 0; i < length; i++)
 {
-	std::cout << posArray[i] << std::endl;
+	vertArray[i] = atof(posArray);
+	std::cout << vertArray[i] << std::endl;
+	posArray = strtok_s(NULL, " ", &token);
 }
+
+std::cout << posNode->first_node()->value();
 
 return;
 
