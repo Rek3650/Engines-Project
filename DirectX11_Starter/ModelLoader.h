@@ -12,7 +12,7 @@ public:
 	ModelLoader();
 	~ModelLoader();
 
-	void LoadModel(char* filePath, GeometryNode* node);
+	void LoadModel(char* filePath);
 private:
 
 };

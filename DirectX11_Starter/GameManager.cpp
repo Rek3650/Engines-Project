@@ -30,6 +30,7 @@
 #include <iostream>
 #include "Primitives.h"
 #include "easylogging++.h"
+#include "ModelLoader.h"
 
 using namespace DirectX;
 using namespace std;
@@ -69,6 +70,8 @@ GameManager::GameManager(HINSTANCE hInstance) : DXGame(hInstance)
 
 	//initializes logging with default settings. must only be run once
 	LOG(INFO) << "My first info log using default logger";
+	ModelLoader* loader = new ModelLoader();
+	loader->LoadModel("../Resources/Model.dae");
 }
 
 GameManager::~GameManager()
