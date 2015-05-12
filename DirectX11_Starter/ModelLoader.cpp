@@ -40,13 +40,15 @@ Mesh* ModelLoader::LoadModel(char* filePath, ID3D11Device* device)
 	int vertLength = atoi(posNode->first_node()->first_attribute("count")->value());
 	int indLength = atoi(norNode->first_node()->first_attribute("count")->value())*2;
 
+	int polyNodeCount = atoi(polyNode->last_node("input")->first_attribute("offset")->value())+1;
+
 	
 	Vertex* vertArray;
 	vertArray = new Vertex[vertLength/3];
 	//{ XMFLOAT3(-0.5, 0.5, 0.5), color, XMFLOAT2(0, 0) }
 
 	UINT* indArray;
-	indArray = new unsigned int[indLength];
+	indArray = new unsigned int[indLength/polyNodeCount];
 
 	char* token = NULL;
 
@@ -73,10 +75,14 @@ Mesh* ModelLoader::LoadModel(char* filePath, ID3D11Device* device)
 	token = NULL;
 	tmpChar = strtok_s(polyNode->first_node("p")->value(), " ", &token);
 
-	for(int i = 0; i < indLength; i++) 
+	index = 0;
+	for(int i = 0; i < indLength; i += polyNodeCount) 
 	{
-		indArray[i] = atoi(tmpChar);
-		tmpChar = strtok_s(NULL, " ", &token);
+		indArray[index] = atoi(tmpChar);
+		std::cout << indArray[index] << std::endl;
+		for(int n = 0; n < polyNodeCount; n++)
+			tmpChar = strtok_s(NULL, " ", &token);
+		index++;
 	}
 	/*
 	std::cout << "Verticies: " << std::endl;
@@ -89,7 +95,7 @@ Mesh* ModelLoader::LoadModel(char* filePath, ID3D11Device* device)
 		std::cout << "num vert: " << vertLength/3 << std::endl;
 	*/
 
-	return new Mesh(vertArray, vertLength/3, indArray, indLength, device);
+	return new Mesh(vertArray, vertLength/3, indArray, indLength/polyNodeCount, device);
 
 //END==========================
 }

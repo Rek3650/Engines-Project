@@ -237,12 +237,12 @@ void GameManager::CreateGeometryBuffers()
 	Primitives primitives(device);
 	//Create a cube
 	ModelLoader* loader = new ModelLoader();
-	//cube = new GameEntity(loader->LoadModel("../Resources/Plane.dae", device), device, pixelShader, vertexShader, triMat, camera);
+	//cube = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, triMat, camera);
 	cube = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
 	cube->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube->Translation(XMFLOAT3(0.0f, 0.0f, 10.0f));
 	
-	cube1 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	cube1 = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, triMat, camera);//primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
 	cube1->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube1->Translation(XMFLOAT3(1.0f, 0.0f, 10.0f));
 	cube2 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
