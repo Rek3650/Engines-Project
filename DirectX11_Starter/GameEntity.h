@@ -16,6 +16,8 @@ public:
 	GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numIndices, 
 		ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
 		Material* mat=NULL, Camera* camera=NULL);
+	GameEntity(Mesh* mesh, ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
+		Material* mat=NULL, Camera* camera=NULL);
 	~GameEntity();
 
 	GeometryNode* geometry;

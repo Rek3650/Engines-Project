@@ -3,6 +3,10 @@
 // Set up the buffers
 Mesh::Mesh(Vertex* vertices, int numVerts, UINT* indices, int numIndices, ID3D11Device* device)
 {
+	verts = vertices;
+	numberVerts = numVerts;
+	numInds = numIndices;
+
 	// Create the vertex buffer
 	D3D11_BUFFER_DESC vbd;
     vbd.Usage					= D3D11_USAGE_IMMUTABLE;
@@ -33,4 +37,19 @@ Mesh::~Mesh(void)
 {
 	ReleaseMacro(vertexBuffer);
 	ReleaseMacro(indexBuffer);
+}
+
+Vertex* Mesh::GetVerticies()
+{
+	return verts;
+}
+
+int Mesh::GetNumVerts()
+{
+	return numberVerts;
+}
+
+int Mesh::GetNumInds()
+{
+	return numInds;
 }

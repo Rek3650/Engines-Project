@@ -29,13 +29,13 @@
 #include <xmmintrin.h>
 #include <iostream>
 #include "Primitives.h"
-#include "easylogging++.h"
+//#include "easylogging++.h"
 #include "ModelLoader.h"
 
 using namespace DirectX;
 using namespace std;
 
-INITIALIZE_EASYLOGGINGPP
+//INITIALIZE_EASYLOGGINGPP
 
 #pragma region Win32 Entry Point (WinMain)
 
@@ -69,9 +69,7 @@ GameManager::GameManager(HINSTANCE hInstance) : DXGame(hInstance)
 	windowHeight = 600;
 
 	//initializes logging with default settings. must only be run once
-	LOG(INFO) << "My first info log using default logger";
-	ModelLoader* loader = new ModelLoader();
-	loader->LoadModel("../Resources/Model.dae", device);
+	//LOG(INFO) << "My first info log using default logger";
 }
 
 GameManager::~GameManager()
@@ -238,6 +236,8 @@ void GameManager::CreateGeometryBuffers()
 
 	Primitives primitives(device);
 	//Create a cube
+	ModelLoader* loader = new ModelLoader();
+	//cube = new GameEntity(loader->LoadModel("../Resources/Plane.dae", device), device, pixelShader, vertexShader, triMat, camera);
 	cube = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
 	cube->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube->Translation(XMFLOAT3(0.0f, 0.0f, 10.0f));

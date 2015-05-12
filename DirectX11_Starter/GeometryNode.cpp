@@ -67,6 +67,7 @@ GeometryNode::GeometryNode(Mesh* nMesh, ID3D11Device* device, ID3D11PixelShader*
 	rotation = XMFLOAT4(0,0,0,1);
 	translation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mesh = nMesh;
+	this->numIndices = mesh->GetNumInds();
 
 	// Set up a dummy view matrix
 	// will be updated every frame by the camera

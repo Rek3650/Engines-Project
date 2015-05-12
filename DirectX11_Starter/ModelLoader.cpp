@@ -78,9 +78,18 @@ Mesh* ModelLoader::LoadModel(char* filePath, ID3D11Device* device)
 		indArray[i] = atoi(tmpChar);
 		tmpChar = strtok_s(NULL, " ", &token);
 	}
+	/*
+	std::cout << "Verticies: " << std::endl;
+	for(int i = 0; i < vertLength/3; i++)
+	{
+		std::cout << "x: " << vertArray[i].Position.x << " y: " << vertArray[i].Position.y << " z: " << vertArray[i].Position.z << std::endl;
+		std::cout << "color: " << vertArray[i].Color.x << ", " << vertArray[i].Color.y << ", " << vertArray[i].Color.z << ", " << vertArray[i].Color.w << std::endl;
+		std::cout << "uv: " << vertArray[i].uv.x << ", " << vertArray[i].uv.y << std::endl;
+	}
+		std::cout << "num vert: " << vertLength/3 << std::endl;
+	*/
 
-
-	return new Mesh(vertArray, vertLength/3, indArray, indLength,device);
+	return new Mesh(vertArray, vertLength/3, indArray, indLength, device);
 
 //END==========================
 }

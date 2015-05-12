@@ -11,6 +11,14 @@ GameEntity::GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numInd
 	geometry = new GeometryNode(vertices, numVerts, indices, numIndices, device, pixelShader, vertexShader, mat, camera);
 }
 
+GameEntity::GameEntity(Mesh* mesh, ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
+		Material* mat, Camera* camer)
+{
+	collider = new OBB(mesh->GetVerticies(), mesh->GetNumVerts());
+	checkForCollisions = true;
+	geometry = new GeometryNode(mesh,device,pixelShader,vertexShader,mat,camer);
+}
+
 GameEntity::~GameEntity(void)
 {
 	//delete geometry;
