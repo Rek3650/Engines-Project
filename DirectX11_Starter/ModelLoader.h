@@ -4,6 +4,8 @@
 #include <fstream>
 #include "GeometryNode.h"
 #include <iostream>
+#include "Mesh.h"
+#include <DirectXMath.h>
 
 using namespace rapidxml;
 
@@ -12,7 +14,7 @@ public:
 	ModelLoader();
 	~ModelLoader();
 
-	void LoadModel(char* filePath);
+	Mesh* LoadModel(char* filePath, ID3D11Device* device);
 private:
 
 };

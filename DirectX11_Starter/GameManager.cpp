@@ -71,7 +71,7 @@ GameManager::GameManager(HINSTANCE hInstance) : DXGame(hInstance)
 	//initializes logging with default settings. must only be run once
 	LOG(INFO) << "My first info log using default logger";
 	ModelLoader* loader = new ModelLoader();
-	loader->LoadModel("../Resources/Model.dae");
+	loader->LoadModel("../Resources/Model.dae", device);
 }
 
 GameManager::~GameManager()
