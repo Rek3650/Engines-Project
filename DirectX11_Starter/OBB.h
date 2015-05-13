@@ -9,8 +9,10 @@ class OBB
 {
 private:
 	XMFLOAT3 vertices[8];
+	XMFLOAT3 verts[8];
 
 	XMFLOAT3 centerPos;
+	XMFLOAT3 offset;
 	XMFLOAT3 xAxis;
 	XMFLOAT3 yAxis;
 	XMFLOAT3 zAxis;
@@ -18,15 +20,17 @@ private:
 	float halfHeight;
 	float halfDepth;
 
-	XMFLOAT3 getLeftmostPoint(Vertex* geomVertices, int numVerts);
-	XMFLOAT3 getRightmostPoint(Vertex* geomVertices, int numVerts);
-	XMFLOAT3 getTopmostPoint(Vertex* geomVertices, int numVerts);
-	XMFLOAT3 getBottommostPoint(Vertex* geomVertices, int numVerts);
-	XMFLOAT3 getDeepestPoint(Vertex* geomVertices, int numVerts);
-	XMFLOAT3 getShallowestPoint(Vertex* geomVertices, int numVerts);
+	XMFLOAT3 getLeftmostPoint();
+	XMFLOAT3 getRightmostPoint();
+	XMFLOAT3 getTopmostPoint();
+	XMFLOAT3 getBottommostPoint();
+	XMFLOAT3 getDeepestPoint();
+	XMFLOAT3 getShallowestPoint();
+
+	void updateVerts();
 
 public:
-	OBB(Vertex* geomVertices, int numVerts);
+	OBB();
 	~OBB(void);
 
 	XMFLOAT3 CenterPos(){return centerPos;};
@@ -37,8 +41,10 @@ public:
 	float HalfHeight(){return halfHeight;};
 	float HalfDepth(){return halfDepth;};
 
-	void setScale(XMFLOAT3 scale);
-	void setRotation(XMFLOAT4 rotation);
-	void setPosition(XMFLOAT3 position);
+	void SetPos(XMFLOAT3 pos);
+	void SetScale(XMFLOAT3 scale);
+
+	void Update(XMFLOAT4X4 w);
+	XMFLOAT3* GetVerts();
 };
 

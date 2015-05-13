@@ -11,6 +11,8 @@ GeometryNode::GeometryNode(Vertex* vertices, int numVerts, UINT* indices, int nu
 	this->mat = mat;
 	this->camera = camera;
 
+	collider = new OBB();
+
 	// set up the transformations and mesh
 	this->numIndices = numIndices;
 	scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -61,6 +63,8 @@ GeometryNode::GeometryNode(Mesh* nMesh, ID3D11Device* device, ID3D11PixelShader*
 	this->vertexShader = vertexShader;
 	this->mat = mat;
 	this->camera = camera;
+
+	collider = new OBB();
 
 	// set up the transformations and mesh
 	scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -131,8 +135,14 @@ void GeometryNode::Update(ID3D11DeviceContext* deviceContext)
 	XMMATRIX s = XMMatrixScaling(scale.x, scale.y, scale.z);
 	XMMATRIX r = XMMatrixRotationQuaternion(XMLoadFloat4(&rotation));
 	XMMATRIX t = XMMatrixTranslation(translation.x, translation.y, translation.z);
+
+	//XMMATRIX w = r * t;
+	//XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(w));
+	
+
 	XMMATRIX w = s * r * t;
 	XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(w));
+	collider->Update(worldMatrix);
 
 	// Update the constant buffer itself
 	deviceContext->UpdateSubresource(

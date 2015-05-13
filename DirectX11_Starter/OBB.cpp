@@ -1,21 +1,122 @@
 #include "OBB.h"
 #include <stdlib.h>
+#include <math.h>
 
-OBB::OBB(Vertex* geomVertices, int numVerts)
+OBB::OBB()
 {
 	// set up the position and axis
 	centerPos = XMFLOAT3(0, 0, 0);
+	offset = XMFLOAT3(0, 0, 0);
 	xAxis = XMFLOAT3(1, 0, 0);
 	yAxis = XMFLOAT3(0, 1, 0);
 	zAxis = XMFLOAT3(0, 0, 1);
 
+	// set up the dimensions
+	halfWidth = 1;
+	halfHeight = 1;
+	halfDepth = 1;
+
 	// set up the vertices
-	XMFLOAT3 left = getLeftmostPoint(geomVertices, numVerts);
-	XMFLOAT3 right = getRightmostPoint(geomVertices, numVerts);
-	XMFLOAT3 top = getTopmostPoint(geomVertices, numVerts);
-	XMFLOAT3 bottom = getBottommostPoint(geomVertices, numVerts);
-	XMFLOAT3 front = getShallowestPoint(geomVertices, numVerts);
-	XMFLOAT3 back = getDeepestPoint(geomVertices, numVerts);
+	updateVerts();
+}
+
+
+OBB::~OBB(void)
+{
+}
+
+
+void OBB::Update(XMFLOAT4X4 w)
+{
+	XMMATRIX world = XMMatrixSet(w._11, w._12, w._13, w._14,
+								 w._21, w._22, w._23, w._24,
+								 w._31, w._32, w._33, w._34,
+								 w._41, w._42, w._43, w._44);
+	world = XMMatrixInverse(&XMMatrixDeterminant(world), world);
+
+	// update the x axis
+	XMVECTOR vec = XMVectorSet(1, 0, 0, 1);
+	vec = XMVector3Transform(vec, world);
+	XMStoreFloat3(&xAxis, vec);
+
+	float mag = sqrtf((xAxis.x*xAxis.x)+(xAxis.y*xAxis.y)+(xAxis.z*xAxis.z));
+	xAxis.x /= mag;
+	xAxis.y /= mag;
+	xAxis.z /= mag;
+
+	// update the y axis
+	vec = XMVectorSet(0, 1, 0, 1);
+	vec = XMVector3Transform(vec, world);
+	XMStoreFloat3(&yAxis, vec);
+
+	mag = sqrtf((yAxis.x*yAxis.x)+(yAxis.y*yAxis.y)+(yAxis.z*yAxis.z));
+	yAxis.x /= mag;
+	yAxis.y /= mag;
+	yAxis.z /= mag;
+
+	// update the z axis
+	vec = XMVectorSet(0, 0, 1, 1);
+	vec = XMVector3Transform(vec, world);
+	XMStoreFloat3(&zAxis, vec);
+
+	mag = sqrtf((zAxis.x*zAxis.x)+(zAxis.y*zAxis.y)+(zAxis.z*zAxis.z));
+	zAxis.x /= mag;
+	zAxis.y /= mag;
+	zAxis.z /= mag;
+
+	vec = XMVectorSet(offset.x, offset.y, offset.z, 1);
+	vec = XMVector3Transform(vec, world);
+	XMFLOAT3 tempOffset(0, 0, 0);
+	XMStoreFloat3(&tempOffset, vec);
+
+	// get the position out of the matrix and add in an offset
+	centerPos.x = w._14 + tempOffset.x;
+	centerPos.y = w._24 + tempOffset.y;
+	centerPos.z = w._34 + tempOffset.z;
+
+	// update the vertices
+	for(int i = 0; i < 8; i++)
+	{
+		vec = XMVectorSet(vertices[i].x, vertices[i].y, vertices[i].z, 1);
+		vec = XMVector3Transform(vec, world);
+		XMStoreFloat3(&(verts[i]), vec);
+
+		verts[i].x += centerPos.x;
+		verts[i].y += centerPos.y;
+		verts[i].z += centerPos.z;
+	}
+}
+
+// set the position of the bounding box (relative to the local axis)
+void OBB::SetPos(XMFLOAT3 pos)
+{
+	offset = pos;
+}
+
+// sets the size of the bounding box
+void OBB::SetScale(XMFLOAT3 scale)
+{
+	halfWidth = scale.x/2;
+	halfHeight = scale.y/2;
+	halfDepth = scale.z/2;
+
+	updateVerts();
+}
+
+// returns an array of length 8 that contains the vertices of the bounding box
+XMFLOAT3* OBB::GetVerts()
+{
+	return verts;
+}
+
+void OBB::updateVerts()
+{
+	XMFLOAT3 left = getLeftmostPoint();
+	XMFLOAT3 right = getRightmostPoint();
+	XMFLOAT3 top = getTopmostPoint();
+	XMFLOAT3 bottom = getBottommostPoint();
+	XMFLOAT3 front = getShallowestPoint();
+	XMFLOAT3 back = getDeepestPoint();
 
 	vertices[0] = XMFLOAT3(left.x, top.y, front.z);
 	vertices[1] = XMFLOAT3(left.x, top.y, back.z);
@@ -26,139 +127,75 @@ OBB::OBB(Vertex* geomVertices, int numVerts)
 	vertices[6] = XMFLOAT3(right.x, bottom.y, front.z);
 	vertices[7] = XMFLOAT3(right.x, bottom.y, back.z);
 
-	// set up the dimensions
-	halfWidth = abs(right.x - left.x)/2;
-	halfHeight = abs(top.y - bottom.y)/2;
-	halfDepth = abs(front.z - back.z)/2;
-}
-
-
-OBB::~OBB(void)
-{
-}
-
-// set the transforms
-void OBB::setScale(XMFLOAT3 scale)
-{
-	halfWidth *= abs(scale.x);
-	halfHeight *= abs(scale.y);
-	halfDepth *= abs(scale.z);
-}
-
-void OBB::setRotation(XMFLOAT4 rotation)
-{
-	// rotate the vertices
-	XMVECTOR vec;
-	XMVECTOR rotQuat = XMVectorSet(rotation.x, rotation.y, rotation.z, rotation.w);
-	XMMATRIX rot = XMMatrixRotationQuaternion(rotQuat);
 	for(int i = 0; i < 8; i++)
 	{
-		vec = XMVectorSet(vertices[i].x, vertices[i].y, vertices[i].z, 0);
-		vec = XMVector3Transform(vec, rot);
-		XMStoreFloat3(&vertices[i], vec);
-	}
-
-	// rotate the axis
-	vec = XMVectorSet(xAxis.x, xAxis.y, xAxis.z, 0);
-	vec = XMVector3Transform(vec, rot);
-	XMStoreFloat3(&xAxis, vec);
-
-	vec = XMVectorSet(yAxis.x, yAxis.y, yAxis.z, 0);
-	vec = XMVector3Transform(vec, rot);
-	XMStoreFloat3(&yAxis, vec);
-
-	vec = XMVectorSet(zAxis.x, zAxis.y, zAxis.z, 0);
-	vec = XMVector3Transform(vec, rot);
-	XMStoreFloat3(&zAxis, vec);
-}
-
-void OBB::setPosition(XMFLOAT3 position)
-{
-	centerPos = position;
-
-	for(int i = 0; i < 8; i++)
-	{
-		vertices[i].x += position.x;
-		vertices[i].y += position.y;
-		vertices[i].z += position.z;
+		verts[i] = vertices[i];
 	}
 }
 
 // accessors for the extreme points (for setting up bounding boxes)
-XMFLOAT3 OBB::getLeftmostPoint(Vertex* geomVertices, int numVerts)
+XMFLOAT3 OBB::getLeftmostPoint()
 {
-	XMFLOAT3 vert = geomVertices[0].Position;
+	XMFLOAT3 vert(0, 0, 0);
 
-	for(int i = 1; i < numVerts; i++)
-	{
-		float x = geomVertices[i].Position.x;
-		if(x < vert.x)	vert = geomVertices[i].Position;
-	}
+	vert.x = centerPos.x-(xAxis.x*(halfWidth/2));
+	vert.y = centerPos.y-(xAxis.y*(halfWidth/2));
+	vert.z = centerPos.z-(xAxis.z*(halfWidth/2));
 
 	return vert;
 }
 
-XMFLOAT3 OBB::getRightmostPoint(Vertex* geomVertices, int numVerts)
+XMFLOAT3 OBB::getRightmostPoint()
 {
-	XMFLOAT3 vert = geomVertices[0].Position;
+	XMFLOAT3 vert(0, 0, 0);
 
-	for(int i = 1; i < numVerts; i++)
-	{
-		float x = geomVertices[i].Position.x;
-		if(x > vert.x)	vert = geomVertices[i].Position;
-	}
+	vert.x = centerPos.x+(xAxis.x*(halfWidth/2));
+	vert.y = centerPos.y+(xAxis.y*(halfWidth/2));
+	vert.z = centerPos.z+(xAxis.z*(halfWidth/2));
 
 	return vert;
 }
 
-XMFLOAT3 OBB::getTopmostPoint(Vertex* geomVertices, int numVerts)
+XMFLOAT3 OBB::getTopmostPoint()
 {
-	XMFLOAT3 vert = geomVertices[0].Position;
+	XMFLOAT3 vert(0, 0, 0);
 
-	for(int i = 1; i < numVerts; i++)
-	{
-		float y = geomVertices[i].Position.y;
-		if(y > vert.y)	vert = geomVertices[i].Position;
-	}
+	vert.x = centerPos.x+(yAxis.x*(halfWidth/2));
+	vert.y = centerPos.y+(yAxis.y*(halfWidth/2));
+	vert.z = centerPos.z+(yAxis.z*(halfWidth/2));
 
 	return vert;
 }
 
-XMFLOAT3 OBB::getBottommostPoint(Vertex* geomVertices, int numVerts)
+XMFLOAT3 OBB::getBottommostPoint()
 {
-	XMFLOAT3 vert = geomVertices[0].Position;
+	XMFLOAT3 vert(0, 0, 0);
 
-	for(int i = 1; i < numVerts; i++)
-	{
-		float y = geomVertices[i].Position.y;
-		if(y < vert.y)	vert = geomVertices[i].Position;
-	}
+	vert.x = centerPos.x-(yAxis.x*(halfWidth/2));
+	vert.y = centerPos.y-(yAxis.y*(halfWidth/2));
+	vert.z = centerPos.z-(yAxis.z*(halfWidth/2));
 
 	return vert;
 }
 
-XMFLOAT3 OBB::getDeepestPoint(Vertex* geomVertices, int numVerts)
+XMFLOAT3 OBB::getDeepestPoint()
 {
-	XMFLOAT3 vert = geomVertices[0].Position;
+	XMFLOAT3 vert(0, 0, 0);
 
-	for(int i = 1; i < numVerts; i++)
-	{
-		float z = geomVertices[i].Position.z;
-		if(z > vert.z)	vert = geomVertices[i].Position;
-	}
+	vert.x = centerPos.x+(zAxis.x*(halfWidth/2));
+	vert.y = centerPos.y+(zAxis.y*(halfWidth/2));
+	vert.z = centerPos.z+(zAxis.z*(halfWidth/2));
 
 	return vert;
 }
 
-XMFLOAT3 OBB::getShallowestPoint(Vertex* geomVertices, int numVerts)
+XMFLOAT3 OBB::getShallowestPoint()
 {
-	XMFLOAT3 vert = geomVertices[0].Position;
+	XMFLOAT3 vert(0, 0, 0);
 
-	for(int i = 1; i < numVerts; i++)
-	{
-		float z = geomVertices[i].Position.z;
-		if(z < vert.z)	vert = geomVertices[i].Position;
-	}
+	vert.x = centerPos.x-(zAxis.x*(halfWidth/2));
+	vert.y = centerPos.y-(zAxis.y*(halfWidth/2));
+	vert.z = centerPos.z-(zAxis.z*(halfWidth/2));
 
 	return vert;
 }

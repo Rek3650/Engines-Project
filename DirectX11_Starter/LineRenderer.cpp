@@ -48,4 +48,11 @@ void LineRenderer::Draw(ID3D11DeviceContext* deviceContext)
 	{
 		lines[i]->Draw(deviceContext);
 	}
+
+	// clear the list so we don't draw old lines
+	for(int i = 0; i < lines.size(); i++)
+	{
+		delete lines[i];
+	}
+	lines.clear();
 }

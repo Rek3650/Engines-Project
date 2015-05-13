@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Camera.h"
+#include "OBB.h"
 
 // Struct to match vertex shader's constant buffer
 // You update one of these locally, then push it to the corresponding
@@ -19,6 +20,7 @@ struct VertexShaderConstantBuffer
 class GeometryNode : public SceneNode
 {
 private:
+	OBB* collider;
 
 	int numIndices;
 	ID3D11Buffer* cBuffer;
@@ -44,4 +46,6 @@ public:
 	~GeometryNode();
 	virtual void Update(ID3D11DeviceContext* deviceContext) override;
 	virtual void Draw(ID3D11DeviceContext* deviceContext) override;
+
+	OBB* GetCollider(){return collider;};
 };

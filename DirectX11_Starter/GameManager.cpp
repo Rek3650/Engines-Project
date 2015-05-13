@@ -116,39 +116,6 @@ bool GameManager::Init()
 	// for drawing lines
 	lineRenderer = new LineRenderer(device, pixelShader, vertexShader, camera);
 
-	// initialize the stuff for the spline
-	splineIndex = 0;
-	dir = 1;
-	ctrlPts.clear();
-	splinePts.clear();
-	
-	// set some default values for the ctrlPts
-	/* circle
-	ctrlPts.push_back(XMFLOAT3(-1, -1, 0));
-	ctrlPts.push_back(XMFLOAT3(-1, 1, 0));
-	ctrlPts.push_back(XMFLOAT3(1, 1, 0));
-	ctrlPts.push_back(XMFLOAT3(1, -1, 0));
-	ctrlPts.push_back(XMFLOAT3(-1, -1, 0));
-	ctrlPts.push_back(XMFLOAT3(-1, 1, 0));
-	ctrlPts.push_back(XMFLOAT3(1, 1, 0));
-	/*/// sin wave
-	ctrlPts.push_back(XMFLOAT3(-1.5f, -1, 0));
-	ctrlPts.push_back(XMFLOAT3(-1, 0, 0));
-	ctrlPts.push_back(XMFLOAT3(-0.5f, 1, 0));
-	ctrlPts.push_back(XMFLOAT3(0.5f, -1, 0));
-	ctrlPts.push_back(XMFLOAT3(1, 0, 0));
-	ctrlPts.push_back(XMFLOAT3(1.5f, 1, 0));
-	//*/
-
-	// make the spline
-	splinePts = spline.sseMakeSpline(ctrlPts, 100);
-	
-	// add lines to draw
-	for(int i = 1; i < splinePts.size(); i++)
-	{
-		lineRenderer->addLine(splinePts[i-1], splinePts[i], XMFLOAT4(1, 1, 1, 1));
-	}
-
 	elapsedTime = 0;
 
 	player = new Player(camera, input, cube);
@@ -245,6 +212,11 @@ void GameManager::CreateGeometryBuffers()
 	cube1 = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, triMat, camera);//primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
 	cube1->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube1->Translation(XMFLOAT3(1.0f, 0.0f, 10.0f));
+
+	// make the collider fit the object a bit more
+	cube1->getCollider()->SetScale(XMFLOAT3(3, 3, 3));
+	cube1->getCollider()->SetPos(XMFLOAT3(0, 0.01, 0.5));
+
 	cube2 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
 	cube2->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube2->Translation(XMFLOAT3(-1.0f, 0.0f, 10.0f));
@@ -285,30 +257,16 @@ void GameManager::UpdateScene(float dt)
 	elapsedTime += dt;
 	input->update();
 	camera->Update(dt);
-
-	if(splineIndex > 1)
-	{
-		splineIndex = 1;
-		dir *= -1;
-	}
-	else if(splineIndex < 0)
-	{
-		splineIndex = 0;
-		dir *= -1;
-	}
-	splineIndex += dt/2 * dir;
-
-	//cube->Translation(spline.sseGetPointOnSpline(ctrlPts, splineIndex));
 	
 	player->Update(dt);
 	cube->Update(deviceContext);
 	network->UpdateTransformBuffer(player->getPosition(), player->getRotation());
 
 	// check for collisions
+	XMFLOAT4 collisionColor(0, 1, 0, 1);
 	if(collision->SAT(cube->getCollider(), cube1->getCollider()))
 	{
-		numCollisions++;
-		std::cout << "Hit: " << numCollisions << std::endl;
+		collisionColor = XMFLOAT4(1, 0, 0, 1);
 	}
 
 	// update the networked objects
@@ -316,6 +274,54 @@ void GameManager::UpdateScene(float dt)
 	for(int i = 0; i < network->networkedObjects.size(); i++)
 	{
 		network->networkedObjects[i]->Update(deviceContext);
+	}
+
+	if(input->getKey(DIK_B))
+	{
+		// draw the axis of the player obb
+		/*
+		XMFLOAT3 centerPos = cube->getCollider()->CenterPos();
+		XMFLOAT3 colXAxis = cube->getCollider()->XAxis();
+		XMFLOAT3 colYAxis = cube->getCollider()->YAxis();
+		XMFLOAT3 colZAxis = cube->getCollider()->ZAxis();
+		lineRenderer->addLine(centerPos, XMFLOAT3(centerPos.x+colXAxis.x, centerPos.y+colXAxis.y, centerPos.z+colXAxis.z), XMFLOAT4(1, 1, 0, 1));
+		lineRenderer->addLine(centerPos, XMFLOAT3(centerPos.x+colYAxis.x, centerPos.y+colYAxis.y, centerPos.z+colYAxis.z), XMFLOAT4(1, 1, 0, 1));
+		lineRenderer->addLine(centerPos, XMFLOAT3(centerPos.x+colZAxis.x, centerPos.y+colZAxis.y, centerPos.z+colZAxis.z), XMFLOAT4(1, 1, 0, 1));
+		*/
+
+		// draw the wireframe of the player obb
+		XMFLOAT3* obbVerts = cube->getCollider()->GetVerts();
+		lineRenderer->addLine(obbVerts[0], obbVerts[1], collisionColor);
+		lineRenderer->addLine(obbVerts[2], obbVerts[3], collisionColor);
+		lineRenderer->addLine(obbVerts[4], obbVerts[5], collisionColor);
+		lineRenderer->addLine(obbVerts[6], obbVerts[7], collisionColor);
+
+		lineRenderer->addLine(obbVerts[0], obbVerts[2], collisionColor);
+		lineRenderer->addLine(obbVerts[1], obbVerts[3], collisionColor);
+		lineRenderer->addLine(obbVerts[4], obbVerts[6], collisionColor);
+		lineRenderer->addLine(obbVerts[5], obbVerts[7], collisionColor);
+
+		lineRenderer->addLine(obbVerts[0], obbVerts[4], collisionColor);
+		lineRenderer->addLine(obbVerts[1], obbVerts[5], collisionColor);
+		lineRenderer->addLine(obbVerts[2], obbVerts[6], collisionColor);
+		lineRenderer->addLine(obbVerts[3], obbVerts[7], collisionColor);
+
+		// draw the wireframe of the object obb
+		XMFLOAT3* obb1Verts = cube1->getCollider()->GetVerts();
+		lineRenderer->addLine(obb1Verts[0], obb1Verts[1], collisionColor);
+		lineRenderer->addLine(obb1Verts[2], obb1Verts[3], collisionColor);
+		lineRenderer->addLine(obb1Verts[4], obb1Verts[5], collisionColor);
+		lineRenderer->addLine(obb1Verts[6], obb1Verts[7], collisionColor);
+
+		lineRenderer->addLine(obb1Verts[0], obb1Verts[2], collisionColor);
+		lineRenderer->addLine(obb1Verts[1], obb1Verts[3], collisionColor);
+		lineRenderer->addLine(obb1Verts[4], obb1Verts[6], collisionColor);
+		lineRenderer->addLine(obb1Verts[5], obb1Verts[7], collisionColor);
+
+		lineRenderer->addLine(obb1Verts[0], obb1Verts[4], collisionColor);
+		lineRenderer->addLine(obb1Verts[1], obb1Verts[5], collisionColor);
+		lineRenderer->addLine(obb1Verts[2], obb1Verts[6], collisionColor);
+		lineRenderer->addLine(obb1Verts[3], obb1Verts[7], collisionColor);
 	}
 
 	lineRenderer->Update(deviceContext);

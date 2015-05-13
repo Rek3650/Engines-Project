@@ -9,9 +9,6 @@
 
 class GameEntity
 {
-private:
-	OBB* collider;
-
 public:
 	GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numIndices, 
 		ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
@@ -23,7 +20,7 @@ public:
 	GeometryNode* geometry;
 
 	bool checkForCollisions;
-	OBB* getCollider(){return collider;};
+	OBB* getCollider();
 
 	void Draw(ID3D11DeviceContext* deviceContext);
 	void Update(ID3D11DeviceContext* deviceContext);

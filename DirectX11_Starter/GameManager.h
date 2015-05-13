@@ -79,12 +79,5 @@ private:
 	Collision* collision;
 	int numCollisions;
 
-	// for creating a spline
-	std::vector<XMFLOAT3> ctrlPts;
-	std::vector<XMFLOAT3> splinePts;
-	Spline spline;
-	float splineIndex;
-	int dir;
-
 	float elapsedTime;
 };
