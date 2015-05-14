@@ -136,10 +136,6 @@ void GeometryNode::Update(ID3D11DeviceContext* deviceContext)
 	XMMATRIX r = XMMatrixRotationQuaternion(XMLoadFloat4(&rotation));
 	XMMATRIX t = XMMatrixTranslation(translation.x, translation.y, translation.z);
 
-	//XMMATRIX w = r * t;
-	//XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(w));
-	
-
 	XMMATRIX w = s * r * t;
 	XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(w));
 	collider->Update(worldMatrix);

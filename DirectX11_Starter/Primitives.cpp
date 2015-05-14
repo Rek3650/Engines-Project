@@ -18,14 +18,14 @@ GameEntity* Primitives::makeCube(ID3D11PixelShader* pixelShader, ID3D11VertexSha
 {
 	Vertex verts[] =
 	{
-		{ XMFLOAT3(-0.5, 0.5, 0.5), color, XMFLOAT2(0, 0) },
-		{ XMFLOAT3(0.5, 0.5, 0.5), color, XMFLOAT2(1, 0) },
-		{ XMFLOAT3(0.5, -0.5, 0.5), color, XMFLOAT2(1, 1) },
-		{ XMFLOAT3(-0.5, -0.5, 0.5), color, XMFLOAT2(0, 1) },
-		{ XMFLOAT3(-0.5, 0.5, -0.5), color, XMFLOAT2(1, 0) },
-		{ XMFLOAT3(0.5, 0.5, -0.5), color, XMFLOAT2(0, 0) },
-		{ XMFLOAT3(0.5, -0.5, -0.5), color, XMFLOAT2(0, 1) },
-		{ XMFLOAT3(-0.5, -0.5, -0.5), color, XMFLOAT2(1, 1) }
+		{ XMFLOAT3(-0.5, 0.5, 0.5), color, XMFLOAT2(0, 0), XMFLOAT3(-1, 1, 1) },
+		{ XMFLOAT3(0.5, 0.5, 0.5), color, XMFLOAT2(1, 0), XMFLOAT3(1, 1, 1) },
+		{ XMFLOAT3(0.5, -0.5, 0.5), color, XMFLOAT2(1, 1), XMFLOAT3(1, -1, 1) },
+		{ XMFLOAT3(-0.5, -0.5, 0.5), color, XMFLOAT2(0, 1), XMFLOAT3(-1, -1, 1) },
+		{ XMFLOAT3(-0.5, 0.5, -0.5), color, XMFLOAT2(1, 0), XMFLOAT3(-1, 1, -1) },
+		{ XMFLOAT3(0.5, 0.5, -0.5), color, XMFLOAT2(0, 0), XMFLOAT3(1, 1, -1) },
+		{ XMFLOAT3(0.5, -0.5, -0.5), color, XMFLOAT2(0, 1), XMFLOAT3(1, -1, -1) },
+		{ XMFLOAT3(-0.5, -0.5, -0.5), color, XMFLOAT2(1, 1), XMFLOAT3(-1, -1, -1) }
 	};
 	UINT inds[] =
 	{

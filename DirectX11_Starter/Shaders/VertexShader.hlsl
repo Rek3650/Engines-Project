@@ -16,6 +16,7 @@ struct VertexShaderInput
 	float3 position		: POSITION;
 	float4 color		: COLOR;
 	float2 uv			: TEXCOORD0;
+	float3 normal		: NORMAL;
 };
 
 // Defines the output data of our vertex shader
@@ -26,6 +27,7 @@ struct VertexToPixel
 	float4 position		: SV_POSITION;	// System Value Position - Has specific meaning to the pipeline!
 	float4 color		: COLOR;
 	float2 uv			: TEXCOORD0;
+	float3 normal		: NORMAL;
 };
 
 // The entry point for our vertex shader
@@ -43,6 +45,9 @@ VertexToPixel main( VertexShaderInput input )
 
 	// Pass the uv coordinates through
 	output.uv = input.uv;
+
+	// calculate the world coordinates of the normal
+	output.normal = mul(float4(input.normal, 1.0f), world);
 
 	return output;
 }

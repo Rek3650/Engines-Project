@@ -141,7 +141,8 @@ void GameManager::LoadShadersAndInputLayout()
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 0,	D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12,	D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		0, 28,	D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		0, 28,	D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 36,	D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	// Load Vertex Shader --------------------------------------
@@ -205,11 +206,11 @@ void GameManager::CreateGeometryBuffers()
 	//Create a cube
 	ModelLoader* loader = new ModelLoader();
 	//cube = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, triMat, camera);
-	cube = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	cube = primitives.makeCube(pixelShader, vertexShader , NULL ,camera, XMFLOAT4(0.5, 0.5, 0.5, 1));
 	cube->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube->Translation(XMFLOAT3(0.0f, 0.0f, 10.0f));
 	
-	cube1 = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, triMat, camera);//primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	cube1 = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, NULL, camera);//primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
 	cube1->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube1->Translation(XMFLOAT3(1.0f, 0.0f, 10.0f));
 
@@ -217,7 +218,7 @@ void GameManager::CreateGeometryBuffers()
 	cube1->getCollider()->SetScale(XMFLOAT3(3, 3, 3));
 	cube1->getCollider()->SetPos(XMFLOAT3(0, 0.01, 0.5));
 
-	cube2 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	/*cube2 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
 	cube2->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube2->Translation(XMFLOAT3(-1.0f, 0.0f, 10.0f));
 	cube3 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
@@ -225,7 +226,7 @@ void GameManager::CreateGeometryBuffers()
 	cube3->Translation(XMFLOAT3(0.0f, 1.0f, 10.0f));
 	cube4 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
 	cube4->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
-	cube4->Translation(XMFLOAT3(0.0f, -1.0f, 10.0f));
+	cube4->Translation(XMFLOAT3(0.0f, -1.0f, 10.0f));*/
 	
 	//cube->AddChild(cube1->geometry);
 	//cube->AddChild(cube2->geometry);

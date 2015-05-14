@@ -9,14 +9,22 @@ struct VertexToPixel
 	float4 position		: SV_POSITION;
 	float4 color		: COLOR;
 	float2 uv			: TEXCOORD0;
+	float3 normal		: NORMAL;
 };
 
 // Entry point for this pixel shader
 float4 main(VertexToPixel input) : SV_TARGET
 {
-	// Just return the input color
-	// - Note that this color (like all values that pass through the rasterizer)
-	//   is interpolated for each pixel between the corresponding 
-	//   vertices of the triangle
-	return myTexture.Sample(mySampler, input.uv)+input.color;
+	input.normal = normalize(input.normal);
+
+	float3 lightDirection = float3(0.25f, 0.5f, -1.0f);
+	float4 lightAmbience = float4(0.2f, 0.2f, 0.2f, 1.0f);
+	float4 lightDiffuse = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	float4 diffuse = myTexture.Sample(mySampler, input.uv)+input.color;
+
+	float3 finalColor = diffuse * lightAmbience;
+	finalColor += saturate(dot(lightDirection, input.normal)) * lightDiffuse * diffuse;
+
+	return float4(finalColor, diffuse.a);
 }
