@@ -17,7 +17,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
 
-	float3 lightDirection = float3(0.25f, 0.5f, -1.0f);
+	float3 lightDirection = float3(-1.0f, 0.5f, -0.25f);
 	float4 lightAmbience = float4(0.2f, 0.2f, 0.2f, 1.0f);
 	float4 lightDiffuse = float4(1.0f, 1.0f, 1.0f, 1.0f);
 

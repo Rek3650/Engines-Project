@@ -47,7 +47,7 @@ VertexToPixel main( VertexShaderInput input )
 	output.uv = input.uv;
 
 	// calculate the world coordinates of the normal
-	output.normal = mul(float4(input.normal, 1.0f), world);
+	output.normal = mul(input.normal, world);
 
 	return output;
 }
