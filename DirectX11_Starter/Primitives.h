@@ -13,7 +13,7 @@ public:
 	~Primitives(void);
 	
 	GameEntity* makeCube(ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
-		Material* mat=NULL, Camera* camera=NULL, XMFLOAT4 color=XMFLOAT4(0, 0, 0, 1));
+		Material* mat=NULL, Material* normalMap=NULL, Camera* camera=NULL, XMFLOAT4 color=XMFLOAT4(0, 0, 0, 1));
 
 private:
 	ID3D11Device* device;

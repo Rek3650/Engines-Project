@@ -4,11 +4,12 @@
 //A Geometry node represents an object in 3d space
 GeometryNode::GeometryNode(Vertex* vertices, int numVerts, UINT* indices, int numIndices, 
 							ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
-							Material* mat, Camera* camera)
+							Material* mat, Material* normalMap, Camera* camera)
 {
 	this->pixelShader = pixelShader;
 	this->vertexShader = vertexShader;
 	this->mat = mat;
+	this->normalMap = normalMap;
 	this->camera = camera;
 
 	collider = new OBB();
@@ -57,11 +58,12 @@ GeometryNode::GeometryNode(Vertex* vertices, int numVerts, UINT* indices, int nu
 }
 
 GeometryNode::GeometryNode(Mesh* nMesh, ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
-							Material* mat, Camera* camera)
+							Material* mat, Material* normalMap, Camera* camera)
 {
 	this->pixelShader = pixelShader;
 	this->vertexShader = vertexShader;
 	this->mat = mat;
+	this->normalMap = normalMap;
 	this->camera = camera;
 
 	collider = new OBB();
@@ -178,6 +180,12 @@ void  GeometryNode::Draw(ID3D11DeviceContext* deviceContext)
 	{
 		deviceContext->PSSetShaderResources(0, 1, &(mat->SRV));
 		deviceContext->PSSetSamplers(0, 1, &(mat->sampState));
+	}
+
+	if(normalMap != NULL)
+	{
+		deviceContext->PSSetShaderResources(1, 1, &(normalMap->SRV));
+		deviceContext->PSSetSamplers(1, 1, &(normalMap->sampState));
 	}
 
 	// Finally do the actual drawing

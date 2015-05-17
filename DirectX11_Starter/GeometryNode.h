@@ -32,6 +32,7 @@ private:
 	DirectX::XMFLOAT4X4 projectionMatrix;
 
 	Material* mat;
+	Material* normalMap;
 	ID3D11PixelShader* pixelShader; 
 	ID3D11VertexShader* vertexShader;
 
@@ -40,9 +41,9 @@ private:
 public:
 	GeometryNode(Vertex* vertices, int numVerts, UINT* indices, int numIndices, 
 		ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
-		Material* mat=NULL, Camera* camera=NULL);
+		Material* mat=NULL, Material* normalMap=NULL, Camera* camera=NULL);
 	GeometryNode(Mesh* nMesh, ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
-		Material* mat=NULL, Camera* camera=NULL);
+		Material* mat=NULL, Material* normalMap=NULL, Camera* camera=NULL);
 	~GeometryNode();
 	virtual void Update(ID3D11DeviceContext* deviceContext) override;
 	virtual void Draw(ID3D11DeviceContext* deviceContext) override;

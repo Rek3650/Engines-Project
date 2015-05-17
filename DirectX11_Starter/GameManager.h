@@ -46,6 +46,8 @@ private:
 	void CreateGeometryBuffers();
 
 private:
+	bool lockMouse;
+
 	// our shaders
 	ID3D11PixelShader* pixelShader;
 	ID3D11VertexShader* vertexShader;
@@ -68,6 +70,7 @@ private:
 
 	// texture stuff
 	Material* triMat;
+	Material* bumpsNormalMap;
 	
 	// Networking
 	NetworkManager* network;

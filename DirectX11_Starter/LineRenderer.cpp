@@ -29,7 +29,7 @@ void LineRenderer::addLine(XMFLOAT3 p1, XMFLOAT3 p2, XMFLOAT4 color)
 	};
 	UINT inds[] = { 0, 1 };
 
-	lines.push_back(new GameEntity(verts, 2, inds, 2, device, pixelShader, vertexShader, NULL, camera));
+	lines.push_back(new GameEntity(verts, 2, inds, 2, device, pixelShader, vertexShader, NULL, NULL, camera));
 }
 
 void LineRenderer::Update(ID3D11DeviceContext* deviceContext)

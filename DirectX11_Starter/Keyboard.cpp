@@ -186,7 +186,7 @@ bool Keyboard::ReadMouse()
 
 
 	// Read the mouse device.
-	/*result = m_mouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&m_mouseState);
+	result = m_mouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&m_mouseState);
 	if(FAILED(result))
 	{
 		// If the mouse lost focus or was not acquired then try to get control back.
@@ -198,7 +198,7 @@ bool Keyboard::ReadMouse()
 		{
 			return false;
 		}
-	}*/
+	}
 	
 	return true;
 }
@@ -228,11 +228,11 @@ void Keyboard::ProcessInput()
 	m_mouseY = m_mouseState.lY;
 
 	// Ensure the mouse location doesn't exceed the screen width or height.
-	if(m_mouseX < 0)  { m_mouseX = 0; }
+	/*if(m_mouseX < 0)  { m_mouseX = 0; }
 	if(m_mouseY < 0)  { m_mouseY = 0; }
 	
 	if(m_mouseX > m_screenWidth)  { m_mouseX = m_screenWidth; }
-	if(m_mouseY > m_screenHeight) { m_mouseY = m_screenHeight; }
+	if(m_mouseY > m_screenHeight) { m_mouseY = m_screenHeight; }*/
 	
 	return;
 }

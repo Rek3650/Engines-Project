@@ -4,17 +4,17 @@ using namespace DirectX;
 
 GameEntity::GameEntity(Vertex* vertices, int numVerts, UINT* indices, int numIndices, 
 					   ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
-					   Material* mat, Camera* camera)
+					   Material* mat, Material* normalMap, Camera* camera)
 {
 	checkForCollisions = true;
-	geometry = new GeometryNode(vertices, numVerts, indices, numIndices, device, pixelShader, vertexShader, mat, camera);
+	geometry = new GeometryNode(vertices, numVerts, indices, numIndices, device, pixelShader, vertexShader, mat, normalMap, camera);
 }
 
 GameEntity::GameEntity(Mesh* mesh, ID3D11Device* device, ID3D11PixelShader* pixelShader, ID3D11VertexShader* vertexShader, 
-		Material* mat, Camera* camer)
+		Material* mat, Material* normalMap, Camera* camera)
 {
 	checkForCollisions = true;
-	geometry = new GeometryNode(mesh,device,pixelShader,vertexShader,mat,camer);
+	geometry = new GeometryNode(mesh,device,pixelShader,vertexShader,mat, normalMap,camera);
 }
 
 GameEntity::~GameEntity(void)

@@ -400,7 +400,7 @@ LRESULT DXGame::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// We pause the game when the window is deactivated and unpause it 
 		// when it becomes active.  
 	case WM_ACTIVATE:
-		/*if( LOWORD(wParam) == WA_INACTIVE )
+		if( LOWORD(wParam) == WA_INACTIVE )
 		{
 			gamePaused = true;
 			timer.Stop();
@@ -409,7 +409,7 @@ LRESULT DXGame::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			gamePaused = false;
 			timer.Start();
-		}*/
+		}
 		return 0;
 
 		// WM_SIZE is sent when the user resizes the window.  

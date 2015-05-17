@@ -99,6 +99,7 @@ GameManager::~GameManager()
 // sets up our geometry and loads the shaders (among other things)
 bool GameManager::Init()
 {	
+	lockMouse = false;
 	if( !DXGame::Init() )
 		return false;
 
@@ -109,6 +110,7 @@ bool GameManager::Init()
 
 	// create materials
 	triMat = new Material(device, deviceContext, L"../images/epicTriforce.jpg");
+	bumpsNormalMap = new Material(device, deviceContext, L"../images/BubbleGrip-NormalMap.png");
 
 	// Set up buffers and such
 	LoadShadersAndInputLayout();
@@ -142,7 +144,8 @@ void GameManager::LoadShadersAndInputLayout()
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 0,	D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12,	D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		0, 28,	D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 36,	D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 36,	D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"Tangent",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	// Load Vertex Shader --------------------------------------
@@ -206,11 +209,11 @@ void GameManager::CreateGeometryBuffers()
 	//Create a cube
 	ModelLoader* loader = new ModelLoader();
 	//cube = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, triMat, camera);
-	cube = primitives.makeCube(pixelShader, vertexShader , NULL ,camera, XMFLOAT4(0.5, 0.5, 0.5, 1));
+	cube = primitives.makeCube(pixelShader, vertexShader , NULL, bumpsNormalMap,camera, XMFLOAT4(0.5, 0.5, 0.5, 1));
 	cube->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube->Translation(XMFLOAT3(0.0f, 0.0f, 10.0f));
 	
-	cube1 = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, NULL, camera);//primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
+	cube1 = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, NULL, NULL, camera);//primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
 	cube1->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube1->Translation(XMFLOAT3(1.0f, 0.0f, 10.0f));
 
@@ -255,6 +258,29 @@ void GameManager::OnResize()
 #pragma region Game Loop
 void GameManager::UpdateScene(float dt)
 {
+	if(input->onKeyDown(DIK_L))
+	{
+		lockMouse = !lockMouse;
+	}
+	if(lockMouse)
+	{
+		// trap the cursor in the center of the window
+		RECT windowRect;
+		GetWindowRect(hMainWnd, &windowRect);
+		RECT r = {windowRect.left+(windowWidth/2), windowRect.top+(windowHeight/2), windowRect.left+(windowWidth/2), windowRect.top+(windowHeight/2)};
+		ClipCursor(&r);
+		// hide cursor
+		ShowCursor(false);
+	}
+	else
+	{
+		// unlock the cursor
+		RECT r = {10, 10, 0, 0};
+		ClipCursor(&r);
+		// show the cursor
+		ShowCursor(true);
+	}
+
 	elapsedTime += dt;
 	input->update();
 	camera->Update(dt);

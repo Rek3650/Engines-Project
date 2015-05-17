@@ -17,6 +17,7 @@ struct VertexShaderInput
 	float4 color		: COLOR;
 	float2 uv			: TEXCOORD0;
 	float3 normal		: NORMAL;
+	float3 tangent		: TANGENT;
 };
 
 // Defines the output data of our vertex shader
@@ -28,6 +29,7 @@ struct VertexToPixel
 	float4 color		: COLOR;
 	float2 uv			: TEXCOORD0;
 	float3 normal		: NORMAL;
+	float3 tangent		: TANGENT;
 };
 
 // The entry point for our vertex shader
@@ -46,8 +48,9 @@ VertexToPixel main( VertexShaderInput input )
 	// Pass the uv coordinates through
 	output.uv = input.uv;
 
-	// calculate the world coordinates of the normal
+	// calculate the world coordinates of the normal and tangent
 	output.normal = mul(input.normal, world);
+	output.tangent = mul(input.tangent, world);
 
 	return output;
 }
