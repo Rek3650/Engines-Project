@@ -19,12 +19,12 @@ float4 main(VertexToPixel input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
 
-	float3 lightDirection = float3(-1.0f, 0.5f, -0.25f);
+	float3 lightDirection = float3(-0.5f, 0.5f, -0.25f);
 	float4 lightAmbience = float4(0.5f, 0.5f, 0.5f, 1.0f);
 	float4 lightDiffuse = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	float4 diffuse = myTexture.Sample(mySampler, input.uv)+input.color;
-
+	
 	//Load normal from normal map
 	float4 nMap = normalMap.Sample( mySampler, input.uv );
 
@@ -42,7 +42,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	//Convert normal from normal map to texture space and store in input.normal
 	input.normal = normalize(mul(nMap, texSpace));
-
+	
 	float3 finalColor = diffuse * lightAmbience;
 	finalColor += saturate(dot(lightDirection, input.normal)) * lightDiffuse * diffuse;
 
