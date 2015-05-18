@@ -147,9 +147,9 @@ int main(void)
 				{
 					if(i != j)
 					{
-						for(int k = 0; k < 6; k++)
-						{
-							iSendResult = send( ClientSocket[j], recvbuf[k], iResult, 0 );
+						//for(int k = 0; k < 6; k++)
+						//{
+							iSendResult = send( ClientSocket[j], recvbuf[0], iResult, 0 );
 							if (iSendResult == SOCKET_ERROR) 
 							{
 								printf("send failed with error: %d\n", WSAGetLastError());
@@ -161,7 +161,7 @@ int main(void)
 							{
 								//printf("Sent %d Bytes to %i from %i\n", iSendResult, j, i);
 							}
-						}
+						//}
 					}
 				}
 			}
