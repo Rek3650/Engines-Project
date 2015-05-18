@@ -12,6 +12,8 @@ NetworkManager::NetworkManager(HWND hWnd)
 	transBuf.rotW = 0;
 
 	numPlayers = 1;
+	playerIndex = 0;
+
 	// get the ipAddress and number of players from the config file
 	std::ifstream fileReader;
 	fileReader.open("../GameServer/config.txt");
@@ -74,6 +76,10 @@ NetworkManager::NetworkManager(HWND hWnd)
 	{
         printf("Unable to connect to server!\n");
     }
+
+	// get the player index from the server
+	iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+	playerIndex = atoi(recvbuf);
 }
 
 
@@ -134,6 +140,11 @@ void NetworkManager::Update()
 			}
 		}
 	}
+}
+
+int NetworkManager::GetPlayerIndex()
+{
+	return playerIndex;
 }
 
 void NetworkManager::UpdateTransformBuffer(XMFLOAT3 pos, XMFLOAT4 rot)

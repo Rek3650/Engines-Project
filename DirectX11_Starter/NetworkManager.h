@@ -46,12 +46,15 @@ public:
 	std::vector<GameEntity*> receiveObjects;
 	std::vector<GameEntity*> sendObjects;
 
+	int GetPlayerIndex();
+
 private:
 	void UpdateTransformBuffer(XMFLOAT3 pos, XMFLOAT4 rot);
 
 	char ipAddress[15];
 	int numPlayers;
 
+	int playerIndex;
 	Transform transBuf;
 
 	WSADATA wsaData;

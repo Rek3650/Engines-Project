@@ -133,25 +133,44 @@ bool GameManager::Init()
 
 	elapsedTime = 0;
 
-	player = new Player(camera, input, cube);
+	network = new NetworkManager(hMainWnd);
 
-	for(int i = 0; i < 5; i++)
+	playerIndex = network->GetPlayerIndex();
+
+	if(playerIndex == 0)
 	{
-		prevActive[i] = false;
-		buls[i] = new Bullet(bullets[i]);
-		player->addBullet(buls[i]);
+		player = new Player(camera, input, cube);
+		for(int i = 0; i < 5; i++)
+		{
+			prevActive[i] = false;
+			buls[i] = new Bullet(bullets[i]);
+			player->addBullet(buls[i]);
+		}
+		network->sendObjects.push_back(cube);
+		/*for(int i = 0; i < 5; i++)
+		{
+			network->sendObjects.push_back(bullets[i]);
+		}*/
+		network->receiveObjects.push_back(cube1);
 	}
-
+	else
+	{
+		player = new Player(camera, input, cube1);
+		for(int i = 0; i < 5; i++)
+		{
+			prevActive[i] = false;
+			buls[i] = new Bullet(bullets[i+5]);
+			player->addBullet(buls[i]);
+		}
+		network->sendObjects.push_back(cube1);
+		/*for(int i = 5; i < 10; i++)
+		{
+			network->sendObjects.push_back(bullets[i]);
+		}*/
+		network->receiveObjects.push_back(cube);
+	}
 	collision = new Collision();
 	numCollisions = 0;
-
-	network = new NetworkManager(hMainWnd);
-	network->sendObjects.push_back(cube);
-	/*for(int i = 0; i < 5; i++)
-	{
-		network->sendObjects.push_back(bullets[i]);
-	}*/
-	network->receiveObjects.push_back(cube1);
 
 	return true;
 }

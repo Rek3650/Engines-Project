@@ -120,6 +120,9 @@ int main(void)
 			WSACleanup();
 			return 1;
 		}
+		char pIndex[2];
+		_itoa_s(i, pIndex, 10);
+		iSendResult = send( ClientSocket[i], pIndex, sizeof(pIndex), 0 );
 	}
 
     // No longer need server socket
