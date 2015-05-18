@@ -266,13 +266,13 @@ void GameManager::CreateGeometryBuffers()
 	//cube = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, triMat, camera);
 	cube = primitives.makeCube(pixelShader, vertexShader , nullTexture, nullTexture,camera, XMFLOAT4(0.75, 0, 0, 1));
 	cube->Scale(XMFLOAT3(0.5f, 1.0f, 0.5f));
-	cube->Translation(XMFLOAT3(0.0f, 0.0f, -10.0f));
+	cube->Translation(XMFLOAT3(0.0f, 0.625f, -10.0f));
 
 	cube1 = primitives.makeCube(pixelShader, vertexShader , nullTexture, nullTexture,camera, XMFLOAT4(0, 0, 0.75, 1));
 	//cube1 = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, nullTexture, nullTexture, camera);
 	//cube1->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
 	cube1->Scale(XMFLOAT3(0.5f, 1.0f, 0.5f));
-	cube1->Translation(XMFLOAT3(0.0f, 0.0f, 10.0f));
+	cube1->Translation(XMFLOAT3(0.0f, 0.625f, 10.0f));
 
 	// make the collider fit the object a bit more
 	//cube1->getCollider()->SetScale(XMFLOAT3(3, 3, 3));
@@ -395,11 +395,23 @@ void GameManager::UpdateScene(float dt)
 	XMFLOAT4 collisionColor(0, 1, 0, 1);
 	for(int i = 0; i < 9; i++)
 	{
-		if(collision->SAT(cube->getCollider(), platforms[i]->getCollider()))
+		if(playerIndex == 0)
 		{
-			collisionColor = XMFLOAT4(1, 0, 0, 1);
-			player->onGround = true;
-			player->setPosition(XMFLOAT3(player->getPosition().x, 0.625, player->getPosition().z));
+			if(collision->SAT(cube->getCollider(), platforms[i]->getCollider()))
+			{
+				collisionColor = XMFLOAT4(1, 0, 0, 1);
+				player->onGround = true;
+				player->setPosition(XMFLOAT3(player->getPosition().x, 0.625, player->getPosition().z));
+			}
+		}
+		else
+		{
+			if(collision->SAT(cube1->getCollider(), platforms[i]->getCollider()))
+			{
+				collisionColor = XMFLOAT4(1, 0, 0, 1);
+				player->onGround = true;
+				player->setPosition(XMFLOAT3(player->getPosition().x, 0.625, player->getPosition().z));
+			}
 		}
 	}
 
