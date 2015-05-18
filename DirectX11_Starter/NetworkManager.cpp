@@ -104,11 +104,11 @@ void NetworkManager::Update()
 		// Send information about this client to the server
 
 		// Send player's transform info
-		//for(int i = 0; i < 6; i++)
-		//{
-			UpdateTransformBuffer(sendObjects[0]->geometry->GetPosition(), sendObjects[0]->geometry->GetRotation());
+		for(int i = 0; i < 6; i++)
+		{
+			UpdateTransformBuffer(sendObjects[i]->geometry->GetPosition(), sendObjects[i]->geometry->GetRotation());
 			iResult = send( ConnectSocket, reinterpret_cast<char*>(&transBuf), sizeof(transBuf), 0 );
-		//}
+		}
 		if (iResult == SOCKET_ERROR) 
 		{
 			//printf("send failed with error: %d\n", WSAGetLastError());
