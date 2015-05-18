@@ -378,16 +378,6 @@ void GameManager::UpdateScene(float dt)
 		platforms[i]->Update(deviceContext);
 	}
 
-	for(int i = 0; i < 5; i++)
-	{
-		prevActive[i] = buls[i]->active;
-		buls[i]->Update(dt);
-		if(prevActive[i] && !buls[i]->active)
-		{
-			player->addBullet(buls[i]);
-		}
-	}
-
 	// update the networked objects
 	network->Update();
 	for(int i = 0; i < network->sendObjects.size(); i++)
@@ -423,6 +413,10 @@ void GameManager::UpdateScene(float dt)
 	player->onGround = onPlatform;
 
 	// check if the player gets hit by a bullet
+	for(int i = 0; i < 5; i++)
+	{
+		prevActive[i] = buls[i]->active;
+	}
 	if(playerIndex == 0)
 	{
 		for(int i = 5; i < 10; i++)
@@ -435,6 +429,10 @@ void GameManager::UpdateScene(float dt)
 				{
 					network->playerDead = true;
 				}
+			}
+			if(collision->SAT(cube1->getCollider(), bullets[i-5]->getCollider()))
+			{
+				buls[i-5]->active = false;
 			}
 		}
 	}
@@ -451,6 +449,18 @@ void GameManager::UpdateScene(float dt)
 					network->playerDead = true;
 				}
 			}
+			if(collision->SAT(cube->getCollider(), bullets[i+5]->getCollider()))
+			{
+				buls[i]->active = false;
+			}
+		}
+	}
+	for(int i = 0; i < 5; i++)
+	{
+		buls[i]->Update(dt);
+		if(prevActive[i] && !buls[i]->active)
+		{
+			player->addBullet(buls[i]);
 		}
 	}
 
