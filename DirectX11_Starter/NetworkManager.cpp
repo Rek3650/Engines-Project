@@ -107,9 +107,11 @@ void NetworkManager::Update()
 		// Send information about this client to the server
 
 		// send if the player is alive or not
-		//iResult = send(ConnectSocket, reinterpret_cast<char*>(playerDead), sizeof(playerDead), 0);
-		//iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-		//opponentDead = reinterpret_cast<bool>(recvbuf);
+		char pIsdead[1];
+		_itoa_s(playerDead, pIsdead, 10);
+		iResult = send(ConnectSocket, pIsdead, sizeof(pIsdead), 0);
+		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+		opponentDead = atoi(recvbuf);
 
 		// Send player's transform info
 		for(int i = 0; i < 6; i++)
