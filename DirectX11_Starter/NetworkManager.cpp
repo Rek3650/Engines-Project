@@ -116,7 +116,7 @@ void NetworkManager::Update()
 			iResult = send(ConnectSocket, "false", 5, 0);
 		}
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-		std::cout << recvbuf << std::endl;
+		opponentDead = !strcmp(recvbuf, "true");
 
 		// Send player's transform info
 		for(int i = 0; i < 6; i++)
