@@ -3,7 +3,7 @@
 
 Player::Player(Camera* _camera, InputManager* _input, GameEntity* _graphics)
 {
-	health = 10;
+	health = 5;
 	gravity = 10;
 	jumpSpeed = 10;
 	jumpHeight = 6;
