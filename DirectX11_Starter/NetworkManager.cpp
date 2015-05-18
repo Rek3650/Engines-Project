@@ -119,27 +119,24 @@ void NetworkManager::Update()
 		}
 
 		// Receive until the peer closes the connection
-		if(numPlayers > 1)
+		for(int i = 0; i < numPlayers-1; i++)
 		{
-			for(int i = 0; i < 6; i++)
-			{
-				iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-				Transform* newTrans = reinterpret_cast<Transform*>(recvbuf);
-				receiveObjects[i]->Translation(XMFLOAT3(newTrans->posX, newTrans->posY, newTrans->posZ));
-				receiveObjects[i]->Rotation(XMFLOAT4(newTrans->rotX, newTrans->rotY, newTrans->rotZ, newTrans->rotW));
+			iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+			Transform* newTrans = reinterpret_cast<Transform*>(recvbuf);
+			receiveObjects[0]->Translation(XMFLOAT3(newTrans->posX, newTrans->posY, newTrans->posZ));
+			receiveObjects[0]->Rotation(XMFLOAT4(newTrans->rotX, newTrans->rotY, newTrans->rotZ, newTrans->rotW));
 
-				if ( iResult > 0 )
-				{
-					//printf("Bytes received: %d\n", iResult);
-				}
-				else if ( iResult == 0 )
-				{
-					//printf("Connection closed\n");
-				}
-				else
-				{
-					//printf("recv failed with error: %d\n", WSAGetLastError());
-				}
+			if ( iResult > 0 )
+			{
+				//printf("Bytes received: %d\n", iResult);
+			}
+			else if ( iResult == 0 )
+			{
+				//printf("Connection closed\n");
+			}
+			else
+			{
+				//printf("recv failed with error: %d\n", WSAGetLastError());
 			}
 		}
 	}
