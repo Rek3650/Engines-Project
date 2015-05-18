@@ -134,10 +134,10 @@ int main(void)
 		for(int i = 0; i < numPlayers; i++)
 		{
 			// get the clients' transforms
-			for(int j = 0; j < 6; j++)
-			{
-				iResult = recv(ClientSocket[i], recvbuf[j], recvbuflen, 0);
-			}
+			//for(int j = 0; j < 6; j++)
+			//{
+				iResult = recv(ClientSocket[i], recvbuf[0], recvbuflen, 0);
+			//}
 			if (iResult > 0) 
 			{
 				printf("Bytes received: %d\n", iResult);
