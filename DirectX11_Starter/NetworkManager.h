@@ -48,6 +48,9 @@ public:
 
 	int GetPlayerIndex();
 
+	bool playerDead;
+	bool opponentDead;
+
 private:
 	void UpdateTransformBuffer(XMFLOAT3 pos, XMFLOAT4 rot);
 

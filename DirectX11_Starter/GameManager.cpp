@@ -399,59 +399,59 @@ void GameManager::UpdateScene(float dt)
 		network->receiveObjects[i]->Update(deviceContext);
 	}
 
-	// check for collisions between the moving objects and platforms
-	XMFLOAT4 collisionColor(0, 1, 0, 1);
+	// check for collisions between the player and platforms
+	bool onPlatform = false;
 	for(int i = 0; i < 9; i++)
 	{
 		if(playerIndex == 0)
 		{
 			if(collision->SAT(cube->getCollider(), platforms[i]->getCollider()))
 			{
-				collisionColor = XMFLOAT4(1, 0, 0, 1);
-				player->onGround = true;
-				player->setPosition(XMFLOAT3(player->getPosition().x, 0.625, player->getPosition().z));
+				onPlatform = true;
+				player->setPosition(XMFLOAT3(player->getPosition().x, 0.623, player->getPosition().z));
 			}
 		}
 		else
 		{
 			if(collision->SAT(cube1->getCollider(), platforms[i]->getCollider()))
 			{
-				collisionColor = XMFLOAT4(1, 0, 0, 1);
-				player->onGround = true;
-				player->setPosition(XMFLOAT3(player->getPosition().x, 0.625, player->getPosition().z));
+				onPlatform = true;
+				player->setPosition(XMFLOAT3(player->getPosition().x, 0.623, player->getPosition().z));
 			}
 		}
 	}
+	player->onGround = onPlatform;
 
-	if(input->getKey(DIK_B))
+	// check if the player gets hit by a bullet
+	if(playerIndex == 0)
 	{
-		// draw the axis of the player obb
-		/*
-		XMFLOAT3 centerPos = cube->getCollider()->CenterPos();
-		XMFLOAT3 colXAxis = cube->getCollider()->XAxis();
-		XMFLOAT3 colYAxis = cube->getCollider()->YAxis();
-		XMFLOAT3 colZAxis = cube->getCollider()->ZAxis();
-		lineRenderer->addLine(centerPos, XMFLOAT3(centerPos.x+colXAxis.x, centerPos.y+colXAxis.y, centerPos.z+colXAxis.z), XMFLOAT4(1, 1, 0, 1));
-		lineRenderer->addLine(centerPos, XMFLOAT3(centerPos.x+colYAxis.x, centerPos.y+colYAxis.y, centerPos.z+colYAxis.z), XMFLOAT4(1, 1, 0, 1));
-		lineRenderer->addLine(centerPos, XMFLOAT3(centerPos.x+colZAxis.x, centerPos.y+colZAxis.y, centerPos.z+colZAxis.z), XMFLOAT4(1, 1, 0, 1));
-		*/
-
-		// draw the wireframe of the player obb
-		XMFLOAT3* obbVerts = cube->getCollider()->GetVerts();
-		lineRenderer->addLine(obbVerts[0], obbVerts[1], collisionColor);
-		lineRenderer->addLine(obbVerts[2], obbVerts[3], collisionColor);
-		lineRenderer->addLine(obbVerts[4], obbVerts[5], collisionColor);
-		lineRenderer->addLine(obbVerts[6], obbVerts[7], collisionColor);
-
-		lineRenderer->addLine(obbVerts[0], obbVerts[2], collisionColor);
-		lineRenderer->addLine(obbVerts[1], obbVerts[3], collisionColor);
-		lineRenderer->addLine(obbVerts[4], obbVerts[6], collisionColor);
-		lineRenderer->addLine(obbVerts[5], obbVerts[7], collisionColor);
-
-		lineRenderer->addLine(obbVerts[0], obbVerts[4], collisionColor);
-		lineRenderer->addLine(obbVerts[1], obbVerts[5], collisionColor);
-		lineRenderer->addLine(obbVerts[2], obbVerts[6], collisionColor);
-		lineRenderer->addLine(obbVerts[3], obbVerts[7], collisionColor);
+		for(int i = 5; i < 10; i++)
+		{
+			if(collision->SAT(cube->getCollider(), bullets[i]->getCollider()))
+			{
+				player->health--;
+				std::cout << player->health << std::endl;
+				if(player->health <= 0)
+				{
+					network->playerDead = true;
+				}
+			}
+		}
+	}
+	else
+	{
+		for(int i = 0; i < 5; i++)
+		{
+			if(collision->SAT(cube1->getCollider(), bullets[i]->getCollider()))
+			{
+				player->health--;
+				std::cout << player->health << std::endl;
+				if(player->health <= 0)
+				{
+					network->playerDead = true;
+				}
+			}
+		}
 	}
 
 	lineRenderer->Update(deviceContext);
@@ -482,11 +482,11 @@ void GameManager::DrawScene()
 	// draw the networked objects
 	for(int i = 0; i < network->sendObjects.size(); i++)
 	{
-		network->sendObjects[i]->Draw(deviceContext);
+		if(!network->playerDead) network->sendObjects[i]->Draw(deviceContext);
 	}
 	for(int i = 0; i < network->receiveObjects.size(); i++)
 	{
-		network->receiveObjects[i]->Draw(deviceContext);
+		if(!network->opponentDead) network->receiveObjects[i]->Draw(deviceContext);
 	}
 
 	// Draw debug lines

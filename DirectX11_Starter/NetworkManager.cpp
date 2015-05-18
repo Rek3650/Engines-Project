@@ -2,6 +2,9 @@
 
 NetworkManager::NetworkManager(HWND hWnd)
 {
+	playerDead = false;
+	opponentDead = false;
+
 	// initialize the buffers that will be sent to the server
 	transBuf.posX = 0;
 	transBuf.posY = 0;
@@ -102,6 +105,11 @@ void NetworkManager::Update()
 	if(numPlayers > 0)
 	{
 		// Send information about this client to the server
+
+		// send if the player is alive or not
+		iResult = send(ConnectSocket, reinterpret_cast<char*>(playerDead), sizeof(playerDead), 0);
+		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+		opponentDead = reinterpret_cast<bool>(recvbuf);
 
 		// Send player's transform info
 		for(int i = 0; i < 6; i++)

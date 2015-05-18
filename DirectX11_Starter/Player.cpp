@@ -3,7 +3,7 @@
 
 Player::Player(Camera* _camera, InputManager* _input, GameEntity* _graphics)
 {
-	health = 3;
+	health = 10;
 	gravity = 10;
 	jumpSpeed = 10;
 	jumpHeight = 6;
@@ -71,27 +71,30 @@ void Player::Update(float dt)
 		}
 
 		// jump
-		if(input->onKeyDown(DIK_SPACE) && onGround)
+		if(health > 0)
 		{
-			if(!jumping)
+			if(input->onKeyDown(DIK_SPACE) && onGround)
 			{
-				jumping = true;
-				onGround = false;
-				curJumpHeight = 0;
+				if(!jumping)
+				{
+					jumping = true;
+					onGround = false;
+					curJumpHeight = 0;
+				}
 			}
-		}
-		if(jumping)
-		{
-			curJumpHeight += jumpSpeed*dt;
-			position.y += jumpSpeed*dt;
-			if(curJumpHeight >= jumpHeight)
+			if(jumping)
 			{
-				jumping = false;
+				curJumpHeight += jumpSpeed*dt;
+				position.y += jumpSpeed*dt;
+				if(curJumpHeight >= jumpHeight)
+				{
+					jumping = false;
+				}
 			}
-		}
-		else if(!onGround)
-		{
-			position.y -= gravity*dt;
+			else if(!onGround)
+			{
+				position.y -= gravity*dt;
+			}
 		}
 
 		rotation += input->getMousePos().x/50;
@@ -114,7 +117,7 @@ void Player::Update(float dt)
 		camera->SetTarget(position.x, position.y, position.z);
 
 		// shoot a bullet
-		if(input->onMouseDown(0) && ammo > 0)
+		if(input->onMouseDown(0) && ammo > 0 && health > 0)
 		{
 			bullets[ammo-1]->setPos(position);
 			bullets[ammo-1]->Fire(direction);

@@ -26,8 +26,9 @@ public:
 	bool onGround;
 	void addBullet(Bullet* b);
 
-private:
 	int health;
+
+private:
 	float gravity;
 	float jumpSpeed;
 	float jumpHeight;
