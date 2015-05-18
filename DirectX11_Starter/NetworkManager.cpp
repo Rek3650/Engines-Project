@@ -106,7 +106,7 @@ void NetworkManager::Update()
 		// Send player's transform info
 		for(int i = 0; i < 6; i++)
 		{
-			UpdateTransformBuffer(sendObjects[0]->geometry->GetPosition(), sendObjects[0]->geometry->GetRotation());
+			UpdateTransformBuffer(sendObjects[i]->geometry->GetPosition(), sendObjects[i]->geometry->GetRotation());
 			iResult = send( ConnectSocket, reinterpret_cast<char*>(&transBuf), sizeof(transBuf), 0 );
 			
 			if (iResult == SOCKET_ERROR) 
@@ -123,8 +123,8 @@ void NetworkManager::Update()
 			{
 				iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 				Transform* newTrans = reinterpret_cast<Transform*>(recvbuf);
-				receiveObjects[0]->Translation(XMFLOAT3(newTrans->posX, newTrans->posY, newTrans->posZ));
-				receiveObjects[0]->Rotation(XMFLOAT4(newTrans->rotX, newTrans->rotY, newTrans->rotZ, newTrans->rotW));
+				receiveObjects[i]->Translation(XMFLOAT3(newTrans->posX, newTrans->posY, newTrans->posZ));
+				receiveObjects[i]->Rotation(XMFLOAT4(newTrans->rotX, newTrans->rotY, newTrans->rotZ, newTrans->rotW));
 
 				if ( iResult > 0 )
 				{

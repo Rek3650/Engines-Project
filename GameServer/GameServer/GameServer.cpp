@@ -131,9 +131,9 @@ int main(void)
     // Receive until the peer shuts down the connection
     do {
 		// get the game loop messages from the clients
-		for(int i = 0; i < numPlayers; i++)
+		for(int j = 0; j < 2; j++)
 		{
-			for(int j = 0; j < 6; j++)
+			for(int i = 0; i < numPlayers; i++)
 			{
 				// get the clients' transforms
 				iResult = recv(ClientSocket[i], recvbuf, recvbuflen, 0);
