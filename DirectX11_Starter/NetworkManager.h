@@ -42,12 +42,13 @@ public:
 	~NetworkManager(void);
 
 	void Update();
-
-	void UpdateTransformBuffer(XMFLOAT3 pos, XMFLOAT4 rot);
 	
-	std::vector<GameEntity*> networkedObjects;
+	std::vector<GameEntity*> receiveObjects;
+	std::vector<GameEntity*> sendObjects;
 
 private:
+	void UpdateTransformBuffer(XMFLOAT3 pos, XMFLOAT4 rot);
+
 	char ipAddress[15];
 	int numPlayers;
 

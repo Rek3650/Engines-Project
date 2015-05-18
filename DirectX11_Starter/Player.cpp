@@ -89,7 +89,7 @@ void Player::Update(float dt)
 				jumping = false;
 			}
 		}
-		else
+		else if(!onGround)
 		{
 			position.y -= gravity*dt;
 		}

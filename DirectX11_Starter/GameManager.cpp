@@ -117,7 +117,12 @@ bool GameManager::Init()
 
 	// create materials
 	triMat = new Material(device, deviceContext, L"../images/epicTriforce.jpg");
+// for some retarded reason this texture won't load in Debug so only load it in release
+// this may cause objects that use this texture to look weird in debug
+#if defined(DEBUG) | defined(_DEBUG)
+#else
 	nullTexture = new Material(device, deviceContext, L"../images/black.jpg");
+#endif
 	bumpsNormalMap = new Material(device, deviceContext, L"../images/BubbleGrip-NormalMap.png");
 
 	// Set up buffers and such
@@ -141,7 +146,12 @@ bool GameManager::Init()
 	numCollisions = 0;
 
 	network = new NetworkManager(hMainWnd);
-	network->networkedObjects.push_back(cube1);
+	network->sendObjects.push_back(cube);
+	/*for(int i = 0; i < 5; i++)
+	{
+		network->sendObjects.push_back(bullets[i]);
+	}*/
+	network->receiveObjects.push_back(cube1);
 
 	return true;
 }
@@ -335,17 +345,10 @@ void GameManager::UpdateScene(float dt)
 	camera->Update(dt);
 	
 	player->Update(dt);
-	cube->Update(deviceContext);
-	network->UpdateTransformBuffer(player->getPosition(), player->getRotation());
 
 	for(int i = 0; i < 9; i++)
 	{
 		platforms[i]->Update(deviceContext);
-	}
-	
-	for(int i = 0; i < 10; i++)
-	{
-		bullets[i]->Update(deviceContext);
 	}
 
 	for(int i = 0; i < 5; i++)
@@ -358,6 +361,17 @@ void GameManager::UpdateScene(float dt)
 		}
 	}
 
+	// update the networked objects
+	network->Update();
+	for(int i = 0; i < network->sendObjects.size(); i++)
+	{
+		network->sendObjects[i]->Update(deviceContext);
+	}
+	for(int i = 0; i < network->receiveObjects.size(); i++)
+	{
+		network->receiveObjects[i]->Update(deviceContext);
+	}
+
 	// check for collisions between the moving objects and platforms
 	XMFLOAT4 collisionColor(0, 1, 0, 1);
 	for(int i = 0; i < 9; i++)
@@ -368,13 +382,6 @@ void GameManager::UpdateScene(float dt)
 			player->onGround = true;
 			player->setPosition(XMFLOAT3(player->getPosition().x, 0.625, player->getPosition().z));
 		}
-	}
-
-	// update the networked objects
-	network->Update();
-	for(int i = 0; i < network->networkedObjects.size(); i++)
-	{
-		network->networkedObjects[i]->Update(deviceContext);
 	}
 
 	if(input->getKey(DIK_B))
@@ -428,24 +435,19 @@ void GameManager::DrawScene()
 	deviceContext->IASetInputLayout(inputLayout);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//Draw the cube
-	cube->Draw(deviceContext);
-
 	for(int i = 0; i < 9; i++)
 	{
 		platforms[i]->Draw(deviceContext);
 	}
-	
-	for(int i = 0; i < 10; i++)
-	{
-		bullets[i]->Draw(deviceContext);
-	}
-
 
 	// draw the networked objects
-	for(int i = 0; i < network->networkedObjects.size(); i++)
+	for(int i = 0; i < network->sendObjects.size(); i++)
 	{
-		network->networkedObjects[i]->Draw(deviceContext);
+		network->sendObjects[i]->Draw(deviceContext);
+	}
+	for(int i = 0; i < network->receiveObjects.size(); i++)
+	{
+		network->receiveObjects[i]->Draw(deviceContext);
 	}
 
 	// Draw debug lines
