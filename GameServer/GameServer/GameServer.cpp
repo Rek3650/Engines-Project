@@ -57,7 +57,7 @@ int main(void)
     struct addrinfo hints;
 
     int iSendResult;
-    char recvbuf[6][DEFAULT_BUFLEN];
+    char recvbuf[DEFAULT_BUFLEN];
     int recvbuflen = DEFAULT_BUFLEN;
     
     // Initialize Winsock
@@ -134,10 +134,7 @@ int main(void)
 		for(int i = 0; i < numPlayers; i++)
 		{
 			// get the clients' transforms
-			for(int j = 0; j < 6; j++)
-			{
-				iResult = recv(ClientSocket[i], recvbuf[j], recvbuflen, 0);
-			}
+			iResult = recv(ClientSocket[i], recvbuf, recvbuflen, 0);
 			if (iResult > 0) 
 			{
 				printf("Bytes received: %d\n", iResult);
@@ -147,21 +144,18 @@ int main(void)
 				{
 					if(i != j)
 					{
-						//for(int k = 0; k < 6; k++)
-						//{
-							iSendResult = send( ClientSocket[j], recvbuf[0], iResult, 0 );
-							if (iSendResult == SOCKET_ERROR) 
-							{
-								printf("send failed with error: %d\n", WSAGetLastError());
-								closeClientSockets(ClientSocket, numPlayers);
-								WSACleanup();
-								return 1;
-							}
-							else
-							{
-								//printf("Sent %d Bytes to %i from %i\n", iSendResult, j, i);
-							}
-						//}
+						iSendResult = send( ClientSocket[j], recvbuf, iResult, 0 );
+						if (iSendResult == SOCKET_ERROR) 
+						{
+							printf("send failed with error: %d\n", WSAGetLastError());
+							closeClientSockets(ClientSocket, numPlayers);
+							WSACleanup();
+							return 1;
+						}
+						else
+						{
+							//printf("Sent %d Bytes to %i from %i\n", iSendResult, j, i);
+						}
 					}
 				}
 			}
