@@ -138,7 +138,7 @@ int main(void)
 			{
 				if(i != j)
 				{
-					iSendResult = send( ClientSocket[j], recvbuf, iResult, 0 );
+					iSendResult = send( ClientSocket[i], recvbuf, iResult, 0 );
 				}
 			}
 		}
