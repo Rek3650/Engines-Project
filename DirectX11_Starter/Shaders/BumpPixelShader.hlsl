@@ -18,8 +18,9 @@ struct VertexToPixel
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
+	input.tangent = normalize(input.tangent);
 
-	float3 lightDirection = float3(-0.5f, 0.5f, -0.25f);
+	float3 lightDirection = float3(-0.2f, 0.5f, -0.3f);
 	float4 lightAmbience = float4(0.5f, 0.5f, 0.5f, 1.0f);
 	float4 lightDiffuse = float4(1.0f, 1.0f, 1.0f, 1.0f);
 

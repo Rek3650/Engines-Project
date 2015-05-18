@@ -17,6 +17,7 @@
 #include "Player.h"
 #include "NetworkManager.h"
 #include "Collision.h"
+#include "Bullet.h"
 
 // Include run-time memory checking in debug builds
 #if defined(DEBUG) || defined(_DEBUG)
@@ -49,6 +50,7 @@ private:
 	bool lockMouse;
 
 	// our shaders
+	ID3D11PixelShader* bumpPixelShader;
 	ID3D11PixelShader* pixelShader;
 	ID3D11VertexShader* vertexShader;
 
@@ -59,18 +61,22 @@ private:
 	Camera* camera;
 	InputManager* input;
 	Player* player;
+	int playerIndex;
 
 	// test Game Entities
 	std::vector<GameEntity*> cubes;
 	GameEntity* cube;
 	GameEntity* cube1;
-	GameEntity* cube2;
-	GameEntity* cube3;
-	GameEntity* cube4;
+
+	GameEntity* platforms[17];
+	GameEntity* bullets[10];
+	Bullet*	buls[5];
+	bool prevActive[5];
 
 	// texture stuff
 	Material* triMat;
 	Material* bumpsNormalMap;
+	Material* nullTexture;
 	
 	// Networking
 	NetworkManager* network;

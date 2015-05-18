@@ -81,14 +81,21 @@ GameManager::~GameManager()
 	
 	delete cube;
 	delete cube1;
-	delete cube2;
-	delete cube3;
-	delete cube4;
 	delete triMat;
 	delete camera;
 	delete lineRenderer;
 	delete player;
 	delete network;
+
+	for(int i = 0; i < 9; i++)
+	{
+		delete platforms[i];
+	}
+
+	for(int i = 0; i < 10; i++)
+	{
+		delete bullets[i];
+	}
 }
 
 #pragma endregion
@@ -99,7 +106,7 @@ GameManager::~GameManager()
 // sets up our geometry and loads the shaders (among other things)
 bool GameManager::Init()
 {	
-	lockMouse = false;
+	lockMouse = true;
 	if( !DXGame::Init() )
 		return false;
 
@@ -110,6 +117,7 @@ bool GameManager::Init()
 
 	// create materials
 	triMat = new Material(device, deviceContext, L"../images/epicTriforce.jpg");
+	nullTexture = new Material(device, deviceContext, L"../images/black.jpg");
 	bumpsNormalMap = new Material(device, deviceContext, L"../images/BubbleGrip-NormalMap.png");
 
 	// Set up buffers and such
@@ -121,6 +129,13 @@ bool GameManager::Init()
 	elapsedTime = 0;
 
 	player = new Player(camera, input, cube);
+
+	for(int i = 0; i < 5; i++)
+	{
+		prevActive[i] = false;
+		buls[i] = new Bullet(bullets[i]);
+		player->addBullet(buls[i]);
+	}
 
 	collision = new Collision();
 	numCollisions = 0;
@@ -145,7 +160,7 @@ void GameManager::LoadShadersAndInputLayout()
 		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12,	D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		0, 28,	D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 36,	D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"Tangent",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"TANGENT",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	// Load Vertex Shader --------------------------------------
@@ -177,6 +192,23 @@ void GameManager::LoadShadersAndInputLayout()
 	// Load Pixel Shader ---------------------------------------
 	ID3DBlob* psBlob;
 #if defined(DEBUG) | defined(_DEBUG)
+	D3DReadFileToBlob(L"BumpPixelShader.cso", &psBlob);
+#else
+	D3DReadFileToBlob(L"../Release/BumpPixelShader.cso", &psBlob);
+#endif
+
+	// Create the shader on the device
+	HR(device->CreatePixelShader(
+		psBlob->GetBufferPointer(),
+		psBlob->GetBufferSize(),
+		NULL,
+		&bumpPixelShader));
+
+	// Clean up
+	ReleaseMacro(psBlob);
+
+	// load another shader
+#if defined(DEBUG) | defined(_DEBUG)
 	D3DReadFileToBlob(L"PixelShader.cso", &psBlob);
 #else
 	D3DReadFileToBlob(L"../Release/PixelShader.cso", &psBlob);
@@ -199,42 +231,59 @@ void GameManager::LoadShadersAndInputLayout()
 // initialize the game objects
 void GameManager::CreateGeometryBuffers()
 {
-	XMFLOAT4 red	= XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4 green	= XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	XMFLOAT4 blue	= XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-	XMFLOAT4 yellow	= XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
-	XMFLOAT4 white	= XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-
 	Primitives primitives(device);
 	//Create a cube
 	ModelLoader* loader = new ModelLoader();
 	//cube = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, triMat, camera);
-	cube = primitives.makeCube(pixelShader, vertexShader , NULL, bumpsNormalMap,camera, XMFLOAT4(0.5, 0.5, 0.5, 1));
-	cube->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
-	cube->Translation(XMFLOAT3(0.0f, 0.0f, 10.0f));
-	
-	cube1 = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, NULL, NULL, camera);//primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
-	cube1->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
-	cube1->Translation(XMFLOAT3(1.0f, 0.0f, 10.0f));
+	cube = primitives.makeCube(pixelShader, vertexShader , nullTexture, nullTexture,camera, XMFLOAT4(0.75, 0, 0, 1));
+	cube->Scale(XMFLOAT3(0.5f, 1.0f, 0.5f));
+	cube->Translation(XMFLOAT3(0.0f, 0.0f, -10.0f));
+
+	cube1 = primitives.makeCube(pixelShader, vertexShader , nullTexture, nullTexture,camera, XMFLOAT4(0, 0, 0.75, 1));
+	//cube1 = new GameEntity(loader->LoadModel("../Resources/Model.dae", device), device, pixelShader, vertexShader, nullTexture, nullTexture, camera);
+	//cube1->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
+	cube1->Scale(XMFLOAT3(0.5f, 1.0f, 0.5f));
+	cube1->Translation(XMFLOAT3(0.0f, 0.0f, 10.0f));
 
 	// make the collider fit the object a bit more
-	cube1->getCollider()->SetScale(XMFLOAT3(3, 3, 3));
-	cube1->getCollider()->SetPos(XMFLOAT3(0, 0.01, 0.5));
+	//cube1->getCollider()->SetScale(XMFLOAT3(3, 3, 3));
+	//cube1->getCollider()->SetPos(XMFLOAT3(0, 0.01, 0.5));
 
-	/*cube2 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
-	cube2->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
-	cube2->Translation(XMFLOAT3(-1.0f, 0.0f, 10.0f));
-	cube3 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
-	cube3->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
-	cube3->Translation(XMFLOAT3(0.0f, 1.0f, 10.0f));
-	cube4 = primitives.makeCube(pixelShader, vertexShader , triMat ,camera);
-	cube4->Scale(XMFLOAT3(0.5f, 0.5f, 0.5f));
-	cube4->Translation(XMFLOAT3(0.0f, -1.0f, 10.0f));*/
-	
-	//cube->AddChild(cube1->geometry);
-	//cube->AddChild(cube2->geometry);
-	//cube->AddChild(cube3->geometry);
-	//cube->AddChild(cube4->geometry);
+	// create the platform objects
+	for(int i = 0; i < 9; i++)
+	{
+		platforms[i] = primitives.makeCube(bumpPixelShader, vertexShader , nullTexture, bumpsNormalMap,camera, XMFLOAT4(0.75, 0.75, 0.75, 1));
+		platforms[i]->Scale(XMFLOAT3(0.25f, 5.0f, 5.0f));
+		platforms[i]->Rotation(XMFLOAT4(0.7071067811865476, 0.7071067811865475, 0, 0));
+	}
+
+	// set the layout of the platforms
+	platforms[0]->Translation(XMFLOAT3(0, 0, 0));
+	platforms[1]->Translation(XMFLOAT3(0, 0, 10));
+	platforms[2]->Translation(XMFLOAT3(0, 0, -10));
+	platforms[3]->Translation(XMFLOAT3(10, 0, 0));
+	platforms[4]->Translation(XMFLOAT3(-10, 0, 0));
+	platforms[5]->Translation(XMFLOAT3(10, 0, 10));
+	platforms[6]->Translation(XMFLOAT3(10, 0, -10));
+	platforms[7]->Translation(XMFLOAT3(-10, 0, 10));
+	platforms[8]->Translation(XMFLOAT3(-10, 0, -10));
+
+	// create the bullet objects
+	for(int i = 0; i < 10; i++)
+	{
+		if(i < 5)
+		{
+			bullets[i] = primitives.makeCube(bumpPixelShader, vertexShader , nullTexture, nullTexture,camera, XMFLOAT4(0.75, 0, 0, 1));
+		}
+		else 
+		{
+			bullets[i] = primitives.makeCube(bumpPixelShader, vertexShader , nullTexture, nullTexture,camera, XMFLOAT4(0, 0, 0.75, 1));
+		}
+
+		bullets[i]->Scale(XMFLOAT3(0.25f, 0.25f, 0.25f));
+		bullets[i]->Rotation(XMFLOAT4(0.7325378163287419, 0.4619397662556433, -0.19134171618254492, 0.4619397662556433));
+		bullets[i]->Translation(XMFLOAT3(0, 0, 0));
+	}
 }
 
 #pragma endregion
@@ -258,7 +307,7 @@ void GameManager::OnResize()
 #pragma region Game Loop
 void GameManager::UpdateScene(float dt)
 {
-	if(input->onKeyDown(DIK_L))
+	if(input->onKeyDown(DIK_ESCAPE))
 	{
 		lockMouse = !lockMouse;
 	}
@@ -289,11 +338,36 @@ void GameManager::UpdateScene(float dt)
 	cube->Update(deviceContext);
 	network->UpdateTransformBuffer(player->getPosition(), player->getRotation());
 
-	// check for collisions
-	XMFLOAT4 collisionColor(0, 1, 0, 1);
-	if(collision->SAT(cube->getCollider(), cube1->getCollider()))
+	for(int i = 0; i < 9; i++)
 	{
-		collisionColor = XMFLOAT4(1, 0, 0, 1);
+		platforms[i]->Update(deviceContext);
+	}
+	
+	for(int i = 0; i < 10; i++)
+	{
+		bullets[i]->Update(deviceContext);
+	}
+
+	for(int i = 0; i < 5; i++)
+	{
+		prevActive[i] = buls[i]->active;
+		buls[i]->Update(dt);
+		if(prevActive[i] && !buls[i]->active)
+		{
+			player->addBullet(buls[i]);
+		}
+	}
+
+	// check for collisions between the moving objects and platforms
+	XMFLOAT4 collisionColor(0, 1, 0, 1);
+	for(int i = 0; i < 9; i++)
+	{
+		if(collision->SAT(cube->getCollider(), platforms[i]->getCollider()))
+		{
+			collisionColor = XMFLOAT4(1, 0, 0, 1);
+			player->onGround = true;
+			player->setPosition(XMFLOAT3(player->getPosition().x, 0.625, player->getPosition().z));
+		}
 	}
 
 	// update the networked objects
@@ -332,23 +406,6 @@ void GameManager::UpdateScene(float dt)
 		lineRenderer->addLine(obbVerts[1], obbVerts[5], collisionColor);
 		lineRenderer->addLine(obbVerts[2], obbVerts[6], collisionColor);
 		lineRenderer->addLine(obbVerts[3], obbVerts[7], collisionColor);
-
-		// draw the wireframe of the object obb
-		XMFLOAT3* obb1Verts = cube1->getCollider()->GetVerts();
-		lineRenderer->addLine(obb1Verts[0], obb1Verts[1], collisionColor);
-		lineRenderer->addLine(obb1Verts[2], obb1Verts[3], collisionColor);
-		lineRenderer->addLine(obb1Verts[4], obb1Verts[5], collisionColor);
-		lineRenderer->addLine(obb1Verts[6], obb1Verts[7], collisionColor);
-
-		lineRenderer->addLine(obb1Verts[0], obb1Verts[2], collisionColor);
-		lineRenderer->addLine(obb1Verts[1], obb1Verts[3], collisionColor);
-		lineRenderer->addLine(obb1Verts[4], obb1Verts[6], collisionColor);
-		lineRenderer->addLine(obb1Verts[5], obb1Verts[7], collisionColor);
-
-		lineRenderer->addLine(obb1Verts[0], obb1Verts[4], collisionColor);
-		lineRenderer->addLine(obb1Verts[1], obb1Verts[5], collisionColor);
-		lineRenderer->addLine(obb1Verts[2], obb1Verts[6], collisionColor);
-		lineRenderer->addLine(obb1Verts[3], obb1Verts[7], collisionColor);
 	}
 
 	lineRenderer->Update(deviceContext);
@@ -357,7 +414,7 @@ void GameManager::UpdateScene(float dt)
 // Clear the screen, redraw everything, present
 void GameManager::DrawScene()
 {
-	const float color[4] = {0.4f, 0.6f, 0.75f, 0.0f};
+	const float color[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	// Clear the buffer
 	deviceContext->ClearRenderTargetView(renderTargetView, color);
@@ -373,6 +430,17 @@ void GameManager::DrawScene()
 
 	//Draw the cube
 	cube->Draw(deviceContext);
+
+	for(int i = 0; i < 9; i++)
+	{
+		platforms[i]->Draw(deviceContext);
+	}
+	
+	for(int i = 0; i < 10; i++)
+	{
+		bullets[i]->Draw(deviceContext);
+	}
+
 
 	// draw the networked objects
 	for(int i = 0; i < network->networkedObjects.size(); i++)
