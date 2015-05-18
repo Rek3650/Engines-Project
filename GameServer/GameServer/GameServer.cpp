@@ -133,40 +133,43 @@ int main(void)
 		// get the game loop messages from the clients
 		for(int i = 0; i < numPlayers; i++)
 		{
-			// get the clients' transforms
-			iResult = recv(ClientSocket[i], recvbuf, recvbuflen, 0);
-			if (iResult > 0) 
+			for(int j = 0; j < 6; j++)
 			{
-				printf("Bytes received: %d\n", iResult);
-
-				// send the transfrms to the other clients on the server
-				for( int j = 0; j < numPlayers; j++)
+				// get the clients' transforms
+				iResult = recv(ClientSocket[i], recvbuf, recvbuflen, 0);
+				if (iResult > 0) 
 				{
-					if(i != j)
+					printf("Bytes received: %d\n", iResult);
+
+					// send the transfrms to the other clients on the server
+					for( int j = 0; j < numPlayers; j++)
 					{
-						iSendResult = send( ClientSocket[j], recvbuf, iResult, 0 );
-						if (iSendResult == SOCKET_ERROR) 
+						if(i != j)
 						{
-							printf("send failed with error: %d\n", WSAGetLastError());
-							closeClientSockets(ClientSocket, numPlayers);
-							WSACleanup();
-							return 1;
-						}
-						else
-						{
-							//printf("Sent %d Bytes to %i from %i\n", iSendResult, j, i);
+							iSendResult = send( ClientSocket[j], recvbuf, iResult, 0 );
+							if (iSendResult == SOCKET_ERROR) 
+							{
+								printf("send failed with error: %d\n", WSAGetLastError());
+								closeClientSockets(ClientSocket, numPlayers);
+								WSACleanup();
+								return 1;
+							}
+							else
+							{
+								//printf("Sent %d Bytes to %i from %i\n", iSendResult, j, i);
+							}
 						}
 					}
 				}
-			}
-			else if (iResult == 0)
-				printf("Connection closing...\n");
-			else if(iResult < 0)
-			{
-				printf("recv failed with error: %d\n", WSAGetLastError());
-				closeClientSockets(ClientSocket, numPlayers);
-				WSACleanup();
-				return 1;
+				else if (iResult == 0)
+					printf("Connection closing...\n");
+				else if(iResult < 0)
+				{
+					printf("recv failed with error: %d\n", WSAGetLastError());
+					closeClientSockets(ClientSocket, numPlayers);
+					WSACleanup();
+					return 1;
+				}
 			}
 		}
     } while (iResult > 0);

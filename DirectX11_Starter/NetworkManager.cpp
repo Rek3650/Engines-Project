@@ -104,8 +104,8 @@ void NetworkManager::Update()
 		// Send information about this client to the server
 
 		// Send player's transform info
-		//for(int i = 0; i < 6; i++)
-		//{
+		for(int i = 0; i < 6; i++)
+		{
 			UpdateTransformBuffer(sendObjects[0]->geometry->GetPosition(), sendObjects[0]->geometry->GetRotation());
 			iResult = send( ConnectSocket, reinterpret_cast<char*>(&transBuf), sizeof(transBuf), 0 );
 			
@@ -139,7 +139,7 @@ void NetworkManager::Update()
 					//printf("recv failed with error: %d\n", WSAGetLastError());
 				}
 			}
-		//}
+		}
 	}
 }
 

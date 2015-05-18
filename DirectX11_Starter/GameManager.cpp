@@ -319,7 +319,7 @@ void GameManager::CreateGeometryBuffers()
 
 		bullets[i]->Scale(XMFLOAT3(0.25f, 0.25f, 0.25f));
 		bullets[i]->Rotation(XMFLOAT4(0.7325378163287419, 0.4619397662556433, -0.19134171618254492, 0.4619397662556433));
-		bullets[i]->Translation(XMFLOAT3(0, 0, 0));
+		bullets[i]->Translation(XMFLOAT3(0, 500, 0));
 	}
 }
 
