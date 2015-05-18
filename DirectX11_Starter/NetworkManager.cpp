@@ -107,7 +107,14 @@ void NetworkManager::Update()
 		// Send information about this client to the server
 
 		// send if the player is alive or not
-		iResult = send(ConnectSocket, "hi", sizeof(playerDead), 0);
+		if(playerDead)
+		{
+			iResult = send(ConnectSocket, "true", 4, 0);
+		}
+		else
+		{
+			iResult = send(ConnectSocket, "false", 5, 0);
+		}
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 		std::cout << recvbuf << std::endl;
 
