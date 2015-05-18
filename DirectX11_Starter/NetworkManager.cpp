@@ -104,7 +104,7 @@ void NetworkManager::Update()
 		// Send information about this client to the server
 
 		// Send player's transform info
-		for(int i = 0; i < sendObjects.size(); i++)
+		for(int i = 0; i < 6; i++)
 		{
 			UpdateTransformBuffer(sendObjects[i]->geometry->GetPosition(), sendObjects[i]->geometry->GetRotation());
 			iResult = send( ConnectSocket, reinterpret_cast<char*>(&transBuf), sizeof(transBuf), 0 );
@@ -119,24 +119,27 @@ void NetworkManager::Update()
 		}
 
 		// Receive until the peer closes the connection
-		for(int i = 0; i < numPlayers-1; i++)
+		if(numPlayers > 1)
 		{
-			iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-			Transform* newTrans = reinterpret_cast<Transform*>(recvbuf);
-			receiveObjects[i]->Translation(XMFLOAT3(newTrans->posX, newTrans->posY, newTrans->posZ));
-			receiveObjects[i]->Rotation(XMFLOAT4(newTrans->rotX, newTrans->rotY, newTrans->rotZ, newTrans->rotW));
+			for(int i = 0; i < 6; i++)
+			{
+				iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+				Transform* newTrans = reinterpret_cast<Transform*>(recvbuf);
+				receiveObjects[i]->Translation(XMFLOAT3(newTrans->posX, newTrans->posY, newTrans->posZ));
+				receiveObjects[i]->Rotation(XMFLOAT4(newTrans->rotX, newTrans->rotY, newTrans->rotZ, newTrans->rotW));
 
-			if ( iResult > 0 )
-			{
-				//printf("Bytes received: %d\n", iResult);
-			}
-			else if ( iResult == 0 )
-			{
-				//printf("Connection closed\n");
-			}
-			else
-			{
-				//printf("recv failed with error: %d\n", WSAGetLastError());
+				if ( iResult > 0 )
+				{
+					//printf("Bytes received: %d\n", iResult);
+				}
+				else if ( iResult == 0 )
+				{
+					//printf("Connection closed\n");
+				}
+				else
+				{
+					//printf("recv failed with error: %d\n", WSAGetLastError());
+				}
 			}
 		}
 	}

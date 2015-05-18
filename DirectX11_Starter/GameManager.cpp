@@ -147,11 +147,15 @@ bool GameManager::Init()
 			player->addBullet(buls[i]);
 		}
 		network->sendObjects.push_back(cube);
-		/*for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 5; i++)
 		{
 			network->sendObjects.push_back(bullets[i]);
-		}*/
+		}
 		network->receiveObjects.push_back(cube1);
+		for(int i = 5; i < 10; i++)
+		{
+			network->receiveObjects.push_back(bullets[i]);
+		}
 	}
 	else
 	{
@@ -163,11 +167,15 @@ bool GameManager::Init()
 			player->addBullet(buls[i]);
 		}
 		network->sendObjects.push_back(cube1);
-		/*for(int i = 5; i < 10; i++)
+		for(int i = 5; i < 10; i++)
 		{
 			network->sendObjects.push_back(bullets[i]);
-		}*/
+		}
 		network->receiveObjects.push_back(cube);
+		for(int i = 0; i < 5; i++)
+		{
+			network->receiveObjects.push_back(bullets[i]);
+		}
 	}
 	collision = new Collision();
 	numCollisions = 0;
