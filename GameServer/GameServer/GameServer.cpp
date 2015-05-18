@@ -131,17 +131,17 @@ int main(void)
     // Receive until the peer shuts down the connection
     do {
 		// receive and send out if the players are dead
-		for(int i = 0; i < numPlayers; i++)
+		/*for(int i = 0; i < numPlayers; i++)
 		{
 			iResult = recv(ClientSocket[i], recvbuf, recvbuflen, 0);
 			for(int j = 0; j < numPlayers; j++)
 			{
 				if(i != j)
 				{
-					iSendResult = send( ClientSocket[i], recvbuf, iResult, 0 );
+					iSendResult = send( ClientSocket[j], recvbuf, iResult, 0 );
 				}
 			}
-		}
+		}*/
 
 		// get the game loop messages from the clients
 		for(int k = 0; k < 6; k++)
